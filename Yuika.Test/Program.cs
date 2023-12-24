@@ -7,7 +7,7 @@ using Yuika.Graphics;
 using Yuika.Graphics.Metal;
 #endif
 
-Console.WriteLine("");
+Console.WriteLine("Hello, world");
 
 #if __MACOS__
 
