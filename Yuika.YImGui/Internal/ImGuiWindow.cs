@@ -3,7 +3,22 @@ using System.Numerics;
 
 namespace Yuika.YImGui.Internal;
 
-internal class ImGuiWindow
+internal struct Vec2IH 
+{
+    public short X;
+    public short Y;
+
+    public Vec2IH(short x, short y) 
+    {
+        X = x;
+        Y = y;
+    }
+
+    public static readonly Vec2IH Zero = new Vec2IH();
+    public static readonly Vec2IH One = new Vec2IH(1, 1);
+}
+
+internal class ImGuiWindow : IImGuiWindow
 {
     public ImGuiContext Ctx { get; set; }
     public string Name { get; set; }
@@ -67,7 +82,34 @@ internal class ImGuiWindow
     public Vector2 SetWindowPosPivot { get; set; }
     
     public List<uint> IdStack { get; set; }
-    // public ImG
+    public ImGuiWindowTempData DC { get; set; }
+
+    public RectangleF OuterRectClipped { get; set; }
+    public RectangleF InnerRect { get; set; }
+    public RectangleF InnerClipRect { get; set; }
+    public RectangleF WorkRect { get; set; }
+    public RectangleF ParentWorkRect { get; set; }
+    public RectangleF ClipRect { get; set; }
+    public RectangleF ContentRegionRect { get; set; }
+    public Vec2IH HitTestHoleSize { get; set; }
+    public Vec2IH HitTestHoleOffset { get; set; }
+
+    public int LastFrameActive { get; set; }
+    public int LastFrameJustFocused { get; set; }
+    public float LastTimeActive { get; set; }
+
+#if USE_DOCKING
+
+    public bool DockIsActive { get; set; }
+    public bool DockNodeIsVisible { get; set; }
+    public bool DockTabIsVisible { get; set; }
+    public bool DockTabWantClose { get; set; }
+    public short DockOrder { get; set; }
+    public ImGuiDockNode? DockNode { get; set; }
+    public ImGuiDockNode? DockNodeAsHost { get; set; }
+    public uint DockId { get; set; }
+
+#endif
 
     public ImGuiWindow(ImGuiContext ctx, string name)
     {

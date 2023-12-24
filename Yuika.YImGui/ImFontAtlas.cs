@@ -22,7 +22,6 @@ public class ImFontAtlas
 
     public ImFont AddFontDefault(ImFontConfig? fontConfig = null)
     {
-        
         throw new NotImplementedException();
     }
 
@@ -33,12 +32,10 @@ public class ImFontAtlas
         return AddFontFromMemoryTTF(dst.GetBuffer(), sizePixels, fontConfig, glyphRanges);
     }
 
-    public ImFont AddFontFromMemoryTTF(byte[] fontData, float sizePixels, ImFontConfig fontConfig, char[] glyphRanges);
-}
-
-public class ImFontConfig
-{
-    
+    public ImFont AddFontFromMemoryTTF(byte[] fontData, float sizePixels, ImFontConfig fontConfig, char[] glyphRanges)
+    {
+        throw new NotImplementedException();
+    }
 }
 
 public class ImGuiException : Exception

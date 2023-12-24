@@ -4,14 +4,14 @@
         <TargetFramework>net8.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     </PropertyGroup>
     
     <PropertyGroup>
         <YImGuiUseDocking>true</YImGuiUseDocking>
-    </PropertyGroup>
-    
-    <PropertyGroup>
+        <YImGuiEnableTestEngine>true</YImGuiEnableTestEngine>
         <DefineConstants Condition="$(YImGuiUseDocking)">$(DefineConstants);USE_DOCKING</DefineConstants>
+        <DefineConstants Condition="$(YImGuiEnableTestEngine)">$(DefineConstants);ENABLE_TEST_ENGINE</DefineConstants>
     </PropertyGroup>
 
 </Project>

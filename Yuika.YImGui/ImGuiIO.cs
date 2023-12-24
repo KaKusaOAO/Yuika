@@ -50,7 +50,9 @@ public class ImGuiIO
     [SupportedOSPlatformGuard("macos")]
     [SupportedOSPlatformGuard("tvos")]
     [SupportedOSPlatformGuard("ios")]
-    public bool ConfigMacOSBehaviors { get; set; } = OperatingSystem.IsMacOS() || OperatingSystem.IsTvOS() || OperatingSystem.IsIOS();
+    public bool ConfigMacOSBehaviors { get; set; } = 
+        OperatingSystem.IsMacOS() || OperatingSystem.IsTvOS() || OperatingSystem.IsIOS();
+        
     public bool ConfigInputTrickleEventQueue { get; set; } = true;
     public bool ConfigInputTextCursorBlink { get; set; } = true;
     public bool ConfigInputTextEnterKeepActive { get; set; }
@@ -100,11 +102,11 @@ public class ImGuiIO
         
         
     }
-    public void AddMousePosEvent(float x, float y);
-    public void AddMouseButtonEvent(int button, bool down);
-    public void AddMouseWheelEvent(float wheelX, float wheelY);
-    public void AddMouseSourceEvent(ImGuiMouseSource source);
-    public void AddFocusEvent(bool focused);
+    public void AddMousePosEvent(float x, float y) => throw new NotImplementedException();
+    public void AddMouseButtonEvent(int button, bool down) => throw new NotImplementedException();
+    public void AddMouseWheelEvent(float wheelX, float wheelY) => throw new NotImplementedException();
+    public void AddMouseSourceEvent(ImGuiMouseSource source) => throw new NotImplementedException();
+    public void AddFocusEvent(bool focused) => throw new NotImplementedException();
 
     public void AddInputCharacter(int codepoint)
     {
