@@ -1,0 +1,25 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFrameworks>net8.0-ios;net8.0-maccatalyst;net8.0-macos;net8.0-tvos</TargetFrameworks>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Yuika.Graphics\Yuika.Graphics.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Remove="EmbeddedShaders\MTL_UnalignedBufferCopy_iOS.metallib" />
+        <EmbeddedResource Include="EmbeddedShaders\MTL_UnalignedBufferCopy_iOS.metallib">
+            <LogicalName>MTL_UnalignedBufferCopy_iOS</LogicalName>
+        </EmbeddedResource>
+      <None Remove="EmbeddedShaders\MTL_UnalignedBufferCopy_macOS.metallib" />
+        <EmbeddedResource Include="EmbeddedShaders\MTL_UnalignedBufferCopy_macOS.metallib">
+            <LogicalName>MTL_UnalignedBufferCopy_macOS</LogicalName>
+        </EmbeddedResource>
+    </ItemGroup>
+
+</Project>

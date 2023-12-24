@@ -1,0 +1,31 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFrameworks>net8.0;net8.0-macos</TargetFrameworks>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+    
+    <PropertyGroup>
+        <IsMacOSBuild>false</IsMacOSBuild>
+        <IsTvOSBuild>false</IsTvOSBuild>
+        <IsIOSBuild>false</IsIOSBuild>
+        <IsMacCatalystBuild>false</IsMacCatalystBuild>
+        <ExcludeMetal>true</ExcludeMetal>
+    </PropertyGroup>
+    
+    <PropertyGroup>
+        <IsMacOSBuild Condition="'$(TargetFramework)' == 'net8.0-macos'">true</IsMacOSBuild>
+        <IsIOSBuild Condition="'$(TargetFramework)' == 'net8.0-ios'">true</IsIOSBuild>
+        <IsTvOSBuild Condition="'$(TargetFramework)' == 'net8.0-tvos'">true</IsTvOSBuild>
+        <IsMacCatalystBuild Condition="'$(TargetFramework)' == 'net8.0-maccatalyst'">true</IsMacCatalystBuild>
+        <ExcludeMetal Condition="$(IsMacOSBuild) Or $(IsIOSBuild) Or $(IsTVOsBuild) Or $(IsMacCatalystBuild)">false</ExcludeMetal>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Condition="!$(ExcludeMetal)" Include="..\Yuika.Graphics.Metal\Yuika.Graphics.Metal.csproj" />
+      <ProjectReference Include="..\Yuika.Graphics.OpenGL\Yuika.Graphics.OpenGL.csproj" />
+    </ItemGroup>
+
+</Project>
