@@ -34,5 +34,11 @@ internal class ImGuiWindowTempData
     public uint TreeJumpToParentOnPopMask { get; set; }
     public List<ImGuiWindow> ChildWindows { get; set; } = new List<ImGuiWindow>();
     public ImGuiStorage StateStorage { get; set; }
-    public ImGuiOld
+    public ImGuiOldColumns CurrentColumns { get; set; }
+    public int CurrentTableIdx { get; set; }
+    
+    public float ItemWidth { get; set; }
+    public float TextWrapPos { get; set; }
+    public List<float> ItemWidthStack { get; set; } = new List<float>();
+    public List<float> TextWrapPosStack { get; set; } = new List<float>();
 }

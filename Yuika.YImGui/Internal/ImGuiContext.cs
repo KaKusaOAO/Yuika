@@ -1,4 +1,6 @@
-﻿namespace Yuika.YImGui.Internal;
+﻿using System.Numerics;
+
+namespace Yuika.YImGui.Internal;
 
 internal class ImGuiContext : IImGuiContext
 {
@@ -28,11 +30,25 @@ internal class ImGuiContext : IImGuiContext
     public ImGuiMouseSource InputEventsNextMouseSource { get; set; }
     public uint InputEventsNextEventId { get; set; }
 
+    // Windows state
     public List<ImGuiWindow> Windows { get; set; } = new List<ImGuiWindow>();
     public List<ImGuiWindow> WindowsFocusOrder { get; set; } = new List<ImGuiWindow>();
     public List<ImGuiWindow> WindowsTempSortOrder { get; set; } = new List<ImGuiWindow>();
     public List<ImGuiWindowStackData> CurrentWindowStack { get; set; } = new List<ImGuiWindowStackData>();
     public ImGuiStorage WindowsById { get; set; } = new ImGuiStorage();
+    public int WindowsActiveCount { get; set; }
+    public Vector2 WindowsHoverPadding { get; set; }
+    public ImGuiWindow CurrentWindow { get; set; }
+    public ImGuiWindow? HoveredWindow { get; set; }
+    public ImGuiWindow? HoveredWindowUnderMovingWindow { get; set; }
+    public ImGuiWindow? MovingWindow { get; set; }
+    public ImGuiWindow? WheelingWindow { get; set; }
+    public Vector2 WheelingWindowRefMousePos { get; set; }
+    public int WheelingWindowStartFrame { get; set; }
+    public int WheelingWindowScrolledFrame { get; set; }
+    public float WheelingWindowReleaseTimer { get; set; }
+    public Vector2 WheelingWindowWheelRemainder { get; set; }
+    public Vector2 WHeelingAxisAvg { get; set; }
 
     public List<ImGuiViewportP> Viewports { get; set; } = new List<ImGuiViewportP>();
 #if USE_DOCKING

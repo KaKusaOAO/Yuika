@@ -37,9 +37,3 @@ public class ImFontAtlas
         throw new NotImplementedException();
     }
 }
-
-public class ImGuiException : Exception
-{
-    public ImGuiException() {}
-    public ImGuiException(string message) : base(message) {}
-}

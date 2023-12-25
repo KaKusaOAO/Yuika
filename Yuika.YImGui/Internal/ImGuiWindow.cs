@@ -3,21 +3,6 @@ using System.Numerics;
 
 namespace Yuika.YImGui.Internal;
 
-internal struct Vec2IH 
-{
-    public short X;
-    public short Y;
-
-    public Vec2IH(short x, short y) 
-    {
-        X = x;
-        Y = y;
-    }
-
-    public static readonly Vec2IH Zero = new Vec2IH();
-    public static readonly Vec2IH One = new Vec2IH(1, 1);
-}
-
 internal class ImGuiWindow : IImGuiWindow
 {
     public ImGuiContext Ctx { get; set; }
@@ -97,6 +82,19 @@ internal class ImGuiWindow : IImGuiWindow
     public int LastFrameActive { get; set; }
     public int LastFrameJustFocused { get; set; }
     public float LastTimeActive { get; set; }
+    public float ItemWidthDefault { get; set; }
+    public ImGuiStorage StateStorage { get; set; }
+    public List<ImGuiOldColumns> ColumnsStorage { get; set; } = new List<ImGuiOldColumns>();
+    public float FontWindowScale { get; set; }
+    public int SettingsOffset { get; set; }
+    
+    public ImDrawList DrawList { get; set; }
+    public ImGuiWindow ParentWindow { get; set; }
+    public ImGuiWindow ParentWindowInBeginStack { get; set; }
+    public ImGuiWindow RootWindow { get; set; }
+    public ImGuiWindow RootWindowPopupTree { get; set; }
+    public ImGuiWindow RootWindowForTitleBarHighlight { get; set; }
+    public ImGuiWindow RootWindowForNav { get; set; }
 
 #if USE_DOCKING
 

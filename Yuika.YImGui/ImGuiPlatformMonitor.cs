@@ -5,11 +5,6 @@ namespace Yuika.YImGui;
 
 #if USE_DOCKING
 
-public interface IImGuiPlatformMonitorHandle 
-{
-
-}
-
 public class ImGuiPlatformMonitor 
 {
     public Vector2 MainPosition { get; set; }

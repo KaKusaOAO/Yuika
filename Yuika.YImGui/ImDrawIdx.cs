@@ -1,6 +1,6 @@
 ﻿namespace Yuika.YImGui;
 
-using IdxType = IntPtr;
+using IdxType = Int16;
 
 public struct ImDrawIdx
 {
