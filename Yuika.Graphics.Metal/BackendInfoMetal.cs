@@ -31,16 +31,28 @@ namespace Yuika.Graphics.Metal
 #if __MACOS__ || (__IOS__ && !__MACCATALYST__)
         public bool SupportsMetalFX => MTLFXTemporalScalerDescriptor.SupportsDevice(_gd.Device);
 
-        public void Apply(IMTLFXTemporalScaler scaler, CommandList list)
+        public void ExecuteMetalFX(CommandList list, IMTLFXTemporalScaler scaler)
         {
             MTLCommandList mtlCL = Util.AssertSubtype<CommandList, MTLCommandList>(list);
             scaler.Encode(mtlCL.CommandBuffer);
         }
         
-        public void Apply(IMTLFXSpatialScaler scaler, CommandList list)
+        public void ExecuteMetalFX(CommandList list, IMTLFXSpatialScaler scaler)
         {
             MTLCommandList mtlCL = Util.AssertSubtype<CommandList, MTLCommandList>(list);
             scaler.Encode(mtlCL.CommandBuffer);
+        }
+
+        public IMTLFXTemporalScaler? CreateScaler(GraphicsDevice gd, MTLFXTemporalScalerDescriptor desc)
+        {
+            MTLGraphicsDevice mtlDevice = Util.AssertSubtype<GraphicsDevice, MTLGraphicsDevice>(gd);
+            return desc.Create(mtlDevice.Device);
+        }
+        
+        public IMTLFXSpatialScaler? CreateScaler(GraphicsDevice gd, MTLFXSpatialScalerDescriptor desc)
+        {
+            MTLGraphicsDevice mtlDevice = Util.AssertSubtype<GraphicsDevice, MTLGraphicsDevice>(gd);
+            return desc.Create(mtlDevice.Device);
         }
 
         public MTLFXTemporalScalerDescriptor CreateTemporalScalerDescriptor()

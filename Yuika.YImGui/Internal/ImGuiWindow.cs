@@ -8,6 +8,7 @@ internal class ImGuiWindow : IImGuiWindow
     public ImGuiContext Ctx { get; set; }
     public string Name { get; set; }
     public uint Id { get; set; }
+    public ImGuiWindowFlags FlagsPreviousFrame { get; set; }
     public ImGuiWindowFlags Flags { get; set; }
     public ImGuiChildFlags ChildFlags { get; set; }
     public ImGuiViewportP Viewport { get; set; }
@@ -63,6 +64,9 @@ internal class ImGuiWindow : IImGuiWindow
     public ImGuiCond SetWindowPosAllowFlags { get; set; }
     public ImGuiCond SetWindowSizeAllowFlags { get; set; }
     public ImGuiCond SetWindowCollapsedAllowFlags { get; set; }
+#if USE_DOCKING
+    public ImGuiCond SetWindowDockAllowFlags { get; set; }
+#endif
     public Vector2 SetWindowPosVal { get; set; }
     public Vector2 SetWindowPosPivot { get; set; }
     
@@ -89,8 +93,8 @@ internal class ImGuiWindow : IImGuiWindow
     public int SettingsOffset { get; set; }
     
     public ImDrawList DrawList { get; set; }
-    public ImGuiWindow ParentWindow { get; set; }
-    public ImGuiWindow ParentWindowInBeginStack { get; set; }
+    public ImGuiWindow? ParentWindow { get; set; }
+    public ImGuiWindow? ParentWindowInBeginStack { get; set; }
     public ImGuiWindow RootWindow { get; set; }
     public ImGuiWindow RootWindowPopupTree { get; set; }
     public ImGuiWindow RootWindowForTitleBarHighlight { get; set; }

@@ -1,10 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net8.0</TargetFramework>
+        <TargetFramework>netstandard2.1</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+        <LangVersion>10</LangVersion>
     </PropertyGroup>
     
     <PropertyGroup>
@@ -13,5 +14,9 @@
         <DefineConstants Condition="$(YImGuiUseDocking)">$(DefineConstants);USE_DOCKING</DefineConstants>
         <DefineConstants Condition="$(YImGuiEnableTestEngine)">$(DefineConstants);ENABLE_TEST_ENGINE</DefineConstants>
     </PropertyGroup>
+    
+    <ItemGroup>
+      <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="6.0.0" />
+    </ItemGroup>
 
 </Project>

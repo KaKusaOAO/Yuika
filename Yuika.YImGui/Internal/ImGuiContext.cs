@@ -38,7 +38,7 @@ internal class ImGuiContext : IImGuiContext
     public ImGuiStorage WindowsById { get; set; } = new ImGuiStorage();
     public int WindowsActiveCount { get; set; }
     public Vector2 WindowsHoverPadding { get; set; }
-    public ImGuiWindow CurrentWindow { get; set; }
+    public ImGuiWindow? CurrentWindow { get; set; }
     public ImGuiWindow? HoveredWindow { get; set; }
     public ImGuiWindow? HoveredWindowUnderMovingWindow { get; set; }
     public ImGuiWindow? MovingWindow { get; set; }
@@ -48,8 +48,44 @@ internal class ImGuiContext : IImGuiContext
     public int WheelingWindowScrolledFrame { get; set; }
     public float WheelingWindowReleaseTimer { get; set; }
     public Vector2 WheelingWindowWheelRemainder { get; set; }
-    public Vector2 WHeelingAxisAvg { get; set; }
-
+    public Vector2 WheelingAxisAvg { get; set; }
+    
+    // Item / widgets state and tracking information
+    public uint DebugHookIdInfo { get; set; }
+    public uint HoveredId { get; set; }
+    public uint HoveredIdPreviousFrame { get; set; }
+    public bool HoveredIdAllowOverlap { get; set; }
+    public bool HoveredIdDisabled { get; set; }
+    public float HoveredIdTimer { get; set; }
+    public float HoveredIdNotActiveTimer { get; set; }
+    public uint ActiveId { get; set; }
+    public uint ActiveIdIsAlive { get; set; }
+    public float ActiveIdTimer { get; set; }
+    public bool ActiveIdIsJustActivated { get; set; }
+    public bool ActiveIdAllowOverlap { get; set; }
+    public bool ActiveIdNoClearOnFocusLoss { get; set; }
+    public bool ActiveIdHasBeenPressedBefore { get; set; }
+    public bool ActiveIdHasBeenEditedBefore { get; set; }
+    public bool ActiveIdHasBeenEditedThisFrame { get; set; }
+    public Vector2 ActiveIdClickOffset { get; set; }
+    public ImGuiWindow ActiveIdWindow { get; set; }
+    public ImGuiInputSource ActiveIdSource { get; set; }
+    public int ActiveIdMouseButton { get; set; }
+    public uint ActiveIdPreviousFrame { get; set; }
+    public bool ActiveIdPreviousFrameIsAlive { get; set; }
+    public bool ActiveIdPreviousFrameHasBeenEditedBefore { get; set; }
+    public ImGuiWindow ActiveIdPreviousFrameWindow { get; set; }
+    public uint LastActiveId { get; set; }
+    public float LastActiveIdTimer { get; set; }
+    
+    // Shared stacks
+    public ImGuiCol DebugFlashStyleColorIdx { get; set; }
+    public List<ImFont> FontStack { get; set; } = new List<ImFont>();
+    public List<uint> FocusScopeStack { get; set; } = new List<uint>();
+    public List<ImGuiItemFlags> ItemFlagsStack { get; set; } = new List<ImGuiItemFlags>();
+    public List<ImGuiPopupData> OpenPopupStack { get; set; } = new List<ImGuiPopupData>();
+    public List<ImGuiPopupData> BeginPopupStack { get; set; } = new List<ImGuiPopupData>();
+    
     public List<ImGuiViewportP> Viewports { get; set; } = new List<ImGuiViewportP>();
 #if USE_DOCKING
     public ImGuiViewportP? CurrentViewport { get; set; }

@@ -134,7 +134,7 @@ public static partial class ImGui
     {
         unsafe 
         {
-            return Begin(name, (bool*) 0, flags);
+            return Begin(name, null, flags);
         }
     }
 
@@ -179,16 +179,33 @@ public static partial class ImGui
         bool firstBeginOfTheFrame = window.LastFrameActive != currentFrame;
         window.IsFallbackWindow = !ctx.CurrentWindowStack.Any() && ctx.WithinFrameScopeWithImplicitWindow;
 
+        // Update the Appearing flag (note: the BeginDocked() path may also set this to true later)
         bool windowJustActivatedByUser = window.LastFrameActive < currentFrame - 1;
         if (flags.HasFlag(ImGuiWindowFlags.Popup))
         {
-            throw new NotImplementedException();
+            ImGuiPopupData popupRef = ctx.OpenPopupStack[ctx.BeginPopupStack.Count];
+            windowJustActivatedByUser |= window.PopupId != popupRef.PopupId;
+            windowJustActivatedByUser |= window != popupRef.Window;
         }
 
+        // Update Flags, LastFrameActive, BeginOrderXXX fields
         bool windowWasAppearing = window.Appearing;
         if (firstBeginOfTheFrame)
         {
-            throw new NotImplementedException();
+            UpdateWindowInFocusOrderList(window, windowJustCreated, flags);
+            window.Appearing = windowJustActivatedByUser;
+            if (window.Appearing)
+            {
+                SetWindowConditionAllowFlags(window, ImGuiCond.Appearing, true);
+            }
+
+            window.FlagsPreviousFrame = window.Flags;
+            window.Flags = flags;
+            window.ChildFlags = ctx.NextWindowData.Flags.HasFlag() ? ctx.NextWindowData.ChildFlags : 0;
+            window.LastFrameActive = currentFrame;
+            window.LastTimeActive = (float)ctx.Time;
+            window.BeginOrderWithinParent = 0;
+            window.BeginOrderWithinContext = (short)ctx.WindowsActiveCount++;
         }
         else 
         {
@@ -196,15 +213,119 @@ public static partial class ImGui
         }
 
 #if USE_DOCKING
-
+        // Docking
+        // (NB: during the frame dock nodes are created, it is possible that
+        // `window.DockIsActive == false` even though `window.DockNode.Windows.Size > 1`)
         Debug.Assert(window.DockNode == null || window.DockNodeAsHost == null);
+
+        if (ctx.NextWindowData.Flags.HasFlag(ImGuiNextWindowDataFlags.HasDock))
+        {
+            SetWindowDock(window, ctx.NextWindowData.DockId, ctx.NextWindowData.DockCond);
+        }
+
+        if (firstBeginOfTheFrame)
+        {
+            bool hasDockNode = window.DockId != 0 || window.DockNode != null;
+            bool newAutoDockNode = !hasDockNode && GetWindowAlwaysWantOwnTabBar(window);
+            bool dockNodeWasVisible = window.DockNodeIsVisible;
+            bool dockTabWasVisible = window.DockTabIsVisible;
+
+            if (hasDockNode || newAutoDockNode)
+            {
+                BeginDocked(window, open);
+                flags = window.Flags;
+
+                if (window.DockIsActive)
+                {
+                    Debug.Assert(window.DockNode != null);
+                    ctx.NextWindowData.Flags &= ~ImGuiNextWindowDataFlags.HasSizeConstraint;
+                }
+                
+                // Amend the Appearing flag
+                if (window.DockTabIsVisible && !dockTabWasVisible && dockNodeWasVisible && !window.Appearing &&
+                    !windowWasAppearing)
+                {
+                    window.Appearing = true;
+                    SetWindowConditionAllowFlags(window, ImGuiCond.Appearing, true);
+                }
+            }
+            else
+            {
+                window.DockIsActive = window.DockNodeIsVisible = window.DockTabIsVisible = false;
+            }
+        }
+#endif
+        
+        // Parent window is latched only on the first call to Begin() of the frame, so further append-calls can be done
+        // from a different window stack
+#if USE_DOCKING
+        ImGuiWindow? parentWindowInStack = window.DockIsActive && window.DockNode.HostWindow != null
+            ? window.DockNode.HostWindow
+            : ctx.CurrentWindowStack.LastOrDefault()?.Window;
+#else
+        ImGuiWindow? parentWindowInStack = ctx.CurrentWindowStack.LastOrDefault()?.Window;
+#endif
+        ImGuiWindow? parentWindow = firstBeginOfTheFrame
+            ? flags.HasFlag(ImGuiWindowFlags.ChildWindow | ImGuiWindowFlags.Popup) ? parentWindowInStack : null
+            : window.ParentWindow; 
+        Debug.Assert(parentWindow != null || !flags.HasFlag(ImGuiWindowFlags.ChildWindow));
+        
+        // We allow window memory to be compacted so recreated the base stack when needed
+        if (!window.IdStack.Any())
+        {
+            window.IdStack.Add(window.Id);
+        }
+        
+        // Add to stack
+        ctx.CurrentWindow = window;
+        ImGuiWindowStackData windowStackData = new ImGuiWindowStackData
+        {
+            Window = window,
+            ParentLastItemDataBackup = ctx.LastItemData
+        };
+        windowStackData.StackSizesOnBegin.SetToContextState(ctx);
+        ctx.CurrentWindowStack.Add(windowStackData);
+
+        if (flags.HasFlag(ImGuiWindowFlags.ChildMenu))
+        {
+            ctx.BeginMenuCount++;
+        }
+
+        // Update ->RootWindow and others pointers (before any possible call to FocusWindow)
+        if (firstBeginOfTheFrame)
+        {
+            UpdateWindowParentAndRootLinks(window, flags, parentWindow);
+            window.ParentWindowInBeginStack = parentWindowInStack;
+        }
+
+        if (!flags.HasFlag(ImGuiWindowFlags.NavFlattened))
+        {
+            PushFocusScope(window.Id);
+        }
+
+        window.NavRootFocusScopeId = ctx.CurrentFocusScopeId;
+        ctx.CurrentWindow = null;
+
+        if (flags.HasFlag(ImGuiWindowFlags.Popup))
+        {
+            ImGuiPopupData popupRef = ctx.OpenPopupStack[ctx.BeginPopupStack.Count];
+            popupRef.Window = window;
+            popupRef.ParentNavLayer = (int) parentWindowInStack!.DC.NavLayerCurrent;
+            ctx.BeginPopupStack.Add(popupRef);
+            window.PopupId = popupRef.PopupId;
+        }
+        
+        // Process SetNextWindow***() calls
+        bool windowPosSetByApi = false;
+        bool windowSizeXSetByApi = false;
+        bool windowSizeYSetByApi = false;
         
         throw new NotImplementedException();
-#endif
 
         // When reusing window again multiple times a frame, just append content (don't need to setup again)
         if (firstBeginOfTheFrame)
         {
+            // Initialize
             bool windowIsChildTooltip = flags.HasFlag(ImGuiWindowFlags.ChildWindow) && flags.HasFlag(ImGuiWindowFlags.Tooltip);
             bool windowJustAppearingAfterHiddenForResize = window.HiddenFramesCannotSkipItems > 0;
             window.Active = true;
@@ -316,7 +437,44 @@ public static partial class ImGui
         return !window.SkipItems;
     }
 
-    public static void End();
+    public static void End()
+    {
+        ImGuiContext ctx = EnsureContext();
+        ImGuiWindow window = ctx.CurrentWindow!;
+
+        if (ctx.CurrentWindowStack.Count <= 1 && ctx.WithinFrameScopeWithImplicitWindow)
+        {
+            if (ctx.CurrentWindowStack.Count <= 1)
+                throw new ImGuiException("Calling End() too many times!");
+            
+            return;
+        }
+        
+        Debug.Assert(ctx.CurrentWindowStack.Any());
+
+        if (window.Flags.HasFlag(ImGuiWindowFlags.ChildWindow) 
+#if USE_DOCKING
+            &&
+            !window.Flags.HasFlag(ImGuiWindowFlags.DockNodeHost) && !window.DockIsActive
+#endif
+            )
+        {
+            if (!ctx.WithinEndChild)
+                throw new ImGuiException("Must call EndChild() and not End()!");
+        }
+
+        if (window.DC.CurrentColumns != null) EndColumns();
+        
+#if USE_DOCKING
+        if (!window.Flags.HasFlag(ImGuiWindowFlags.DockNodeHost)) PopClipRect();
+#else
+        PopClipRect();
+#endif
+        
+        if (!window.Flags.HasFlag(ImGuiWindowFlags.NavFlattened)) PopFocusScope();
+
+        throw new NotImplementedException();
+    }
 
     #endregion
 
@@ -328,7 +486,45 @@ public static partial class ImGui
     public static bool BeginChild(uint id, SizeF size = default, ImGuiChildFlags childFlags = ImGuiChildFlags.None,
         ImGuiWindowFlags windowFlags = ImGuiWindowFlags.None);
 
-    public static void EndChild();
+    public static void EndChild()
+    {
+        ImGuiContext ctx = EnsureContext();
+        ImGuiWindow childWindow = ctx.CurrentWindow!;
+        
+        Debug.Assert(!ctx.WithinEndChild);
+        Debug.Assert(childWindow.Flags.HasFlag(ImGuiWindowFlags.ChildWindow));
+
+        ctx.WithinEndChild = true;
+        SizeF childSize = childWindow.Size;
+        End();
+
+        if (childWindow.BeginCount == 1)
+        {
+            ImGuiWindow parentWindow = ctx.CurrentWindow!;
+            RectangleF bb = new RectangleF(parentWindow.DC.CursorPos.AsPoint(),
+                new SizeF(parentWindow.DC.CursorPos.AsPoint()) + childSize);
+            ItemSize(ref childSize);
+
+            if ((childWindow.DC.NavLayersActiveMask != 0 || childWindow.DC.NavWindowHasScrollY) &&
+                !childWindow.Flags.HasFlag(ImGuiWindowFlags.NavFlattened))
+            {
+                ItemAdd(bb, childWindow.ChildId);
+                RenderNavHighlight(bb, childWindow.ChildId);
+            }
+            else
+            {
+                ItemAdd(bb, 0);
+            }
+
+            if (ctx.HoveredWindow == childWindow)
+            {
+                ctx.LastItemData.StatusFlags |= ImGuiItemStatusFlags.HoveredWindow;
+            }
+        }
+
+        ctx.WithinEndChild = false;
+        throw new NotImplementedException();
+    }
 
     #endregion
 
@@ -708,9 +904,11 @@ public static partial class ImGui
     public static bool IsPopupOpen(string strId, ImGuiPopupFlags flags = ImGuiPopupFlags.None);
 
     #endregion
-    
 
 #if USE_DOCKING
+
+    #region -- (Optional) Platform/OS interface for multi-viewport support
+
     public static ImGuiPlatformIO PlatformIO => EnsureContext().PlatformIO;
 
     public static void UpdatePlatformWindows();
@@ -718,98 +916,11 @@ public static partial class ImGui
     public static void DestroyPlatformWindows();
     public static ImGuiViewport FindViewportByID(uint id);
     public static ImGuiViewport FindViewportByPlatformHandle(object? platformHandle);
+
+    #endregion
     
-    private static void DockContextInitialize(ImGuiContext context)     //  - They are convenient to easily create context menus, hence the name.
-    {
-        throw new NotImplementedException();
-    }
-
-    private static void DockContextShutdown(ImGuiContext context) 
-    {
-        throw new NotImplementedException();
-    }
-
-    private static void DockContextClearNodes(ImGuiContext context, uint rootId, bool clearSettingsRefs) 
-    {
-        Debug.Assert(context == EnsureContext());
-        throw new NotImplementedException();
-    }
-
 #endif
-
-    private static void Initialize()
-    {
-        ImGuiContext? ctx = CurrentContext as ImGuiContext;
-        Debug.Assert(ctx != null);
-        Debug.Assert(!ctx.Initialized);
-
-        // Add .ini handle for ImGuiWindow and ImGuiTable types
-        {
-            ImGuiSettingsHandler iniHandler;
-            iniHandler.TypeName = "Window";
-            iniHandler.TypeHash = ImHashStr("Window");
-            
-        }
-
-        ctx.IO.GetClipboardTextFn = ctxObj =>
-        {
-            ImGuiContext ctx = (ImGuiContext) ctxObj;
-            // ctx.Clip
-            throw new NotImplementedException();
-        };
-
-        ctx.IO.ClipboardUserData = ctx;
-
-        // Create default viewport
-        ImGuiViewportP viewport = new ImGuiViewportP();
-        ctx.Viewports.Add(viewport);
-
-#if USE_DOCKING
-        viewport.Id = ViewportDefaultId;
-        viewport.Idx = 0;
-        viewport.PlatformWindowCreated = true;
-        viewport.Flags = ImGuiViewportFlags.OwnedByApp;
-
-        ctx.ViewportCreatedCount++;
-        ctx.PlatformIO.Viewports.Add(viewport);
-
-        DockContextInitialize(ctx);
-#endif
-
-        ctx.Initialized = true;
-        throw new NotImplementedException();
-    }
-
-    private static void Shutdown()
-    {
-        ImGuiContext? ctx = CurrentContext as ImGuiContext;
-        Debug.Assert(ctx != null);
-
-        if (ctx.IO.Fonts != null && ctx.FontAtlasOwnedByContext)
-        {
-            ctx.IO.Fonts.Locked = false;
-        }
-
-        ctx.IO.Fonts = null;
-        ctx.DrawListSharedData.TempBuffer.Clear();
-
-        if (!ctx.Initialized) return;
-
-        // Clear everything else
-        ctx.Windows.Clear();
-        ctx.WindowsFocusOrder.Clear();
-        ctx.WindowsTempSortOrder.Clear();
-        
-
-#if USE_DOCKING
-        ctx.CurrentViewport = ctx.MouseViewport = ctx.MouseLastHoveredViewport = null;
-#endif
-        ctx.Viewports.Clear();
-
-        ctx.Initialized = false;
-        throw new NotImplementedException();
-    }
-
+    
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static ImGuiContext EnsureContext()
     {
@@ -837,18 +948,6 @@ public static partial class ImGui
         }
 
         return window;
-    }
-
-    private static ImGuiWindow? FindWindowByName(string name) 
-    {
-        uint id = ImHashStr(name);
-        return FindWindowById(id);
-    }
-
-    private static ImGuiWindow? FindWindowById(uint id) 
-    {
-        ImGuiContext ctx = EnsureContext();
-        return ctx.WindowsById.GetObject<ImGuiWindow?>(id);
     }
 
     private static uint[] _crc32LookupTable = 
@@ -948,25 +1047,6 @@ public static partial class ImGui
         return ~crc;
     }
 
-    private static ImGuiWindow CurrentWindowRead 
-    {
-        get 
-        {
-            ImGuiContext ctx = EnsureContext();
-            return ctx.CurrentWindow;
-        }
-    }
-
-    private static ImGuiWindow CurrentWindow 
-    {
-        get 
-        {
-            ImGuiContext ctx = EnsureContext();
-            ctx.CurrentWindow.WriteAccessed = true;
-            return ctx.CurrentWindow;
-        }
-    }
-
     private static ImGuiWindow GetCombinedRootWindow(ImGuiWindow window, bool popupHierarchy)
     {
         ImGuiWindow? lastWindow = null;
@@ -983,91 +1063,50 @@ public static partial class ImGui
         return window;
     }
 
-    private static void UpdateWindowParentAndRootLinks(ImGuiWindow window, ImGuiWindowFlags flags, ImGuiWindow parentWindow);
-    private static Vector2 CalcWindowNextAutoFitSize(ImGuiWindow window);
-    
-    private static bool IsWindowChildOf(ImGuiWindow window, ImGuiWindow potentialParent, bool popupHierarchy)
-    {
-        
-    }
-
-    private static bool IsWindowWithinBeginStackOf(ImGuiWindow window, ImGuiWindow potentialParent)
-    {
-        if (window.RootWindow == potentialParent) return true;
-
-        while (window != null)
-        {
-            if (window == potentialParent) return true;
-            window = window.ParentWindowInBeginStack;
-        }
-
-        return false;
-    }
-
     private static int GetWindowDisplayLayer(ImGuiWindow window) => window.Flags.HasFlag(ImGuiWindowFlags.Tooltip) ? 1 : 0;
-
-    private static bool IsWindowAbove(ImGuiWindow potentialAbove, ImGuiWindow potentialBelow)
+    
+    private static void UpdateWindowInFocusOrderList(ImGuiWindow window, bool justCreated, ImGuiWindowFlags newFlags)
     {
         ImGuiContext ctx = EnsureContext();
 
-        int displayLayerDelta = GetWindowDisplayLayer(potentialAbove) - GetWindowDisplayLayer(potentialBelow);
-        if (displayLayerDelta != 0)
+        bool newIsExplicitChild = newFlags.HasFlag(ImGuiWindowFlags.ChildWindow) &&
+                                  (!newFlags.HasFlag(ImGuiWindowFlags.Popup) ||
+                                   newFlags.HasFlag(ImGuiWindowFlags.ChildMenu));
+        bool childFlagChanged = newIsExplicitChild != window.IsExplicitChild;
+
+        if ((justCreated || childFlagChanged) && !newIsExplicitChild)
         {
-            return displayLayerDelta > 0;
+            Debug.Assert(!ctx.WindowsFocusOrder.Contains(window));
+            ctx.WindowsFocusOrder.Add(window);
+            window.FocusOrder = (short) (ctx.WindowsFocusOrder.Count - 1);
+        } 
+        else if (!justCreated && childFlagChanged && newIsExplicitChild)
+        {
+            Debug.Assert(ctx.WindowsFocusOrder[window.FocusOrder] == window);
+            for (int n = window.FocusOrder + 1; n < ctx.WindowsFocusOrder.Count; n++)
+            {
+                ctx.WindowsFocusOrder[n].FocusOrder--;
+            }
+
+            ctx.WindowsFocusOrder.RemoveAt(window.FocusOrder);
+            window.FocusOrder = -1;
         }
 
-        foreach (ImGuiWindow candidate in ctx.Windows)
-        {
-            if (candidate == potentialAbove) return true;
-            if (candidate == potentialBelow) return false;
-        }
-
-        return false;
+        window.IsExplicitChild = newIsExplicitChild;
     }
 
-    private static bool IsWindowNavFocusable(ImGuiWindow window) => 
-        window.WasActive && window == window.RootWindow && !window.Flags.HasFlag(ImGuiWindowFlags.NoNavFocus);
-    
-    private static void SetWindowPos(ImGuiWindow window, Vector2 pos, ImGuiCond cond)
+    private static void SetWindowConditionAllowFlags(ImGuiWindow window, ImGuiCond flags, bool enabled)
     {
-        if (cond != ImGuiCond.None && !window.SetWindowPosAllowFlags.HasFlag(cond)) return;
-        
-        Debug.Assert(cond == ImGuiCond.None || Enum.GetValues<ImGuiCond>().Contains(cond));
-        window.SetWindowPosAllowFlags &= ~(ImGuiCond.Once | ImGuiCond.FirstUseEver | ImGuiCond.Appearing);
-        window.SetWindowPosVal = new Vector2(float.MaxValue, float.MaxValue);
-
-        Vector2 oldPos = window.Position;
-        window.Position = pos.Truncate();
-        
-        Vector2 offset = window.Position - oldPos;
-        if (offset == Vector2.Zero) return;
-
-        MarkIniSettingsDirty(window);
-        
-        window.DC.CursorPos += offset;
-        window.DC.CursorMaxPos += offset;
-        window.DC.IdealMaxPos += offset;
-        window.DC.CursorStartPos += offset;
-    }
-
-    private static void SetWindowSize(ImGuiWindow window, SizeF size, ImGuiCond cond)
-    {
-        throw new NotImplementedException();
-    }
-
-    private static void FocusWindow(ImGuiWindow? window)
-    {
-        throw new NotImplementedException();
-    }
-
-    private static void ItemSize(ref SizeF size, float textBaselineY = -1)
-    {
-        throw new NotImplementedException();
-    }
-
-    private static void RenderText(Vector2 pos, string text, bool hideTextAfterHash = true)
-    {
-        throw new NotImplementedException();
+        window.SetWindowPosAllowFlags =
+            enabled ? window.SetWindowPosAllowFlags | flags : window.SetWindowPosAllowFlags & ~flags;
+        window.SetWindowSizeAllowFlags =
+            enabled ? window.SetWindowSizeAllowFlags | flags : window.SetWindowSizeAllowFlags & ~flags;
+        window.SetWindowCollapsedAllowFlags =
+            enabled ? window.SetWindowCollapsedAllowFlags | flags : window.SetWindowCollapsedAllowFlags & ~flags;
+#if USE_DOCKING
+        window.SetWindowDockAllowFlags =
+            enabled ? window.SetWindowDockAllowFlags | flags : window.SetWindowDockAllowFlags & ~flags;
+#endif
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -1075,4 +1114,7 @@ public static partial class ImGui
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static Vector2 Truncate(this Vector2 v) => new Vector2(v.X.Truncate(), v.Y.Truncate());
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static PointF AsPoint(this Vector2 v) => new PointF(v.X, v.Y);
 }

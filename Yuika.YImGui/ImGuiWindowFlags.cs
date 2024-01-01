@@ -1,5 +1,6 @@
 ﻿namespace Yuika.YImGui;
 
+[Flags]
 public enum ImGuiWindowFlags
 {
     None,
