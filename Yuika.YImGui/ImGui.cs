@@ -3,6 +3,7 @@
 // All rights reserved.
 
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Numerics;
 using System.Runtime.CompilerServices;
@@ -961,6 +962,11 @@ public static partial class ImGui
     #region -- Docking
 
     public static uint GetWindowDockId() => throw new NotImplementedException();
+    
+    /// <summary>
+    /// Is the current window docked into another window?
+    /// </summary>
+    /// <returns><c>true</c> if the current window is docked into another window.</returns>
     public static bool IsWindowDocked() => throw new NotImplementedException();
     
     #endregion
@@ -974,6 +980,92 @@ public static partial class ImGui
 
     #endregion
 
+    #region -- Viewports
+
+    /// <summary>
+    /// Return primary/default viewport. This can never be <c>null</c>.
+    /// </summary>
+    public static ImGuiViewport MainViewport => EnsureContext().Viewports.First();
+
+    #endregion
+
+    #region -- Background/Foreground Draw Lists
+
+    /// <summary>
+    /// Get background draw list for the viewport associated to the current window.
+    /// </summary>
+    /// <remarks>
+    /// This draw list will be the first rendering one.
+    /// Useful to quickly draw shapes/text behind ImGui contents.
+    /// </remarks>
+    public static ImDrawList BackgroundDrawList 
+    {
+        get 
+        {
+            ImGuiContext ctx = EnsureContext();
+            return GetBackgroundDrawList(ctx.CurrentWindow!.Viewport);
+        }
+    }
+    
+    /// <summary>
+    /// Get foreground draw list for the viewport associated to the current window.
+    /// </summary>
+    /// <remarks>
+    /// This draw list will be the last rendered one.
+    /// Useful to quickly draw shapes/text over ImGui contents.
+    /// </remarks>
+    public static ImDrawList ForegroundDrawList 
+    { 
+        get 
+        {
+            ImGuiContext ctx = EnsureContext();
+            return GetForegroundDrawList(ctx.CurrentWindow!.Viewport);
+        }
+    }
+    
+    /// <summary>
+    /// Get background draw list for the given viewport.
+    /// </summary>
+    /// <remarks>
+    /// This draw list will be the first rendering one.
+    /// Useful to quickly draw shapes/text behind ImGui contents.
+    /// </remarks>
+    public static ImDrawList GetBackgroundDrawList(ImGuiViewport viewport) => 
+        GetViewportBgFgDrawList(viewport, 0, "##Background");
+    
+    /// <summary>
+    /// Get foreground draw list for the given viewport.
+    /// </summary>
+    /// <remarks>
+    /// This draw list will be the last rendered one.
+    /// Useful to quickly draw shapes/text over ImGui contents.
+    /// </remarks>
+    public static ImDrawList GetForegroundDrawList(ImGuiViewport viewport) =>
+        GetViewportBgFgDrawList(viewport, 1, "##Foreground");
+
+    #endregion
+
+    #region -- Miscellaneous Utilities
+
+    public static IImDrawListSharedData DrawListSharedData => EnsureContext().DrawListSharedData;
+
+    public static ImGuiStorage StateStorage
+    {
+        get => EnsureContext().CurrentWindow!.DC.StateStorage;
+        
+        // ReSharper disable once NullCoalescingConditionIsAlwaysNotNullAccordingToAPIContract
+        set
+        {
+            ImGuiWindow window = EnsureContext().CurrentWindow!;
+            window.DC.StateStorage = value ?? window.StateStorage;
+        }
+    }
+
+    public static void SetStateStorage(ImGuiStorage? storage) => 
+        StateStorage = storage ?? EnsureContext().CurrentWindow!.StateStorage;
+
+    #endregion
+    
     #region -- Text Utilities
 
     public static SizeF CalcTextSize(string text, bool hideTextAfterDoubleHash = false, float wrapWidth = -1)
@@ -1090,7 +1182,7 @@ public static partial class ImGui
         }
     }
 
-    private static uint ImHashStr(string str, int dataSize = 0, uint seed = 0) 
+    internal static uint ImHashStr(string str, int dataSize = 0, uint seed = 0) 
     {
         seed = ~seed;
         uint crc = seed;
@@ -1195,98 +1287,8 @@ public static partial class ImGui
         throw new NotImplementedException();
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static float Truncate(this float f) => (int) f;
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static Vector2 Truncate(this Vector2 v) => new Vector2(v.X.Truncate(), v.Y.Truncate());
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static PointF AsPoint(this Vector2 v) => new PointF(v.X, v.Y);
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static Vector2 AsVector(this PointF p) => new Vector2(p.X, p.Y);
-    
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static SizeF AsSize(this Vector2 v) => new SizeF(v.X, v.Y);
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal static Vector2 LowerRight(this RectangleF r) => (r.Location + r.Size).AsVector();
-
-    
-#if !NET6_0_OR_GREATER
-    internal static IEnumerable<TSource[]> Chunk<TSource>(this IEnumerable<TSource> source, int size)
+    private static ImDrawList GetViewportBgFgDrawList(ImGuiViewport viewport, int drawListNo, string drawListName)
     {
-        if (source == null!)
-        {
-            // ThrowHelper.ThrowArgumentNullException(ExceptionArgument.source);
-            throw new ArgumentNullException(nameof(source));
-        }
-
-        if (size < 1)
-        {
-            // ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.size);
-            throw new ArgumentOutOfRangeException(nameof(size));
-        }
-
-        return source is TSource[] {Length: 0} ? ArraySegment<TSource[]>.Empty : ChunkIterator(source, size);
+        throw new NotImplementedException();
     }
-    
-    private static IEnumerable<TSource[]> ChunkIterator<TSource>(IEnumerable<TSource> source, int size)
-    {
-        using IEnumerator<TSource> e = source.GetEnumerator();
-
-        // Before allocating anything, make sure there's at least one element.
-        if (e.MoveNext())
-        {
-            // Now that we know we have at least one item, allocate an initial storage array. This is not
-            // the array we'll yield.  It starts out small in order to avoid significantly overallocating
-            // when the source has many fewer elements than the chunk size.
-            int arraySize = Math.Min(size, 4);
-            int i;
-            do
-            {
-                var array = new TSource[arraySize];
-
-                // Store the first item.
-                array[0] = e.Current;
-                i = 1;
-
-                if (size != array.Length)
-                {
-                    // This is the first chunk. As we fill the array, grow it as needed.
-                    for (; i < size && e.MoveNext(); i++)
-                    {
-                        if (i >= array.Length)
-                        {
-                            arraySize = (int)Math.Min((uint)size, 2 * (uint)array.Length);
-                            Array.Resize(ref array, arraySize);
-                        }
-
-                        array[i] = e.Current;
-                    }
-                }
-                else
-                {
-                    // For all but the first chunk, the array will already be correctly sized.
-                    // We can just store into it until either it's full or MoveNext returns false.
-                    TSource[] local = array; // avoid bounds checks by using cached local (`array` is lifted to iterator object as a field)
-                    Debug.Assert(local.Length == size);
-                    for (; (uint)i < (uint)local.Length && e.MoveNext(); i++)
-                    {
-                        local[i] = e.Current;
-                    }
-                }
-
-                if (i != array.Length)
-                {
-                    Array.Resize(ref array, i);
-                }
-
-                yield return array;
-            }
-            while (i >= size && e.MoveNext());
-        }
-    }
-#endif
 }

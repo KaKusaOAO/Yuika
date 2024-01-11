@@ -153,6 +153,18 @@ public static partial class ImGui
 
     #region -- Fonts, drawing
 
+    private static void SetCurrentFont(ImFont font) => throw new NotImplementedException();
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static ImFont GetDefaultFont()
+    {
+        ImGuiContext ctx = EnsureContext();
+        return ctx.IO.FontDefault ?? ctx.IO.Fonts!.Fonts.First();
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static ImDrawList GetForegroundDrawList(ImGuiWindow window) => GetForegroundDrawList(window.Viewport);
+
     #endregion
 
     #region -- Init
@@ -168,6 +180,7 @@ public static partial class ImGui
             ImGuiSettingsHandler iniHandler = new ImGuiSettingsHandler();
             iniHandler.TypeName = "Window";
             iniHandler.TypeHash = ImHashStr("Window");
+            AddSettingsHandler(iniHandler);
         }
 
         ctx.IO.GetClipboardTextFn = ctxObj =>

@@ -6,7 +6,7 @@ using System.Numerics;
 
 namespace Yuika.YImGui.Internal;
 
-internal class ImDrawListSharedData
+internal class ImDrawListSharedData : IImDrawListSharedData
 {
     public Vector2 TexUvWhitePixel { get; set; }
     public ImFont Font { get; set; }
