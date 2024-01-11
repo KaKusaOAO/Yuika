@@ -221,7 +221,10 @@ public static partial class ImGui
 
             window.FlagsPreviousFrame = window.Flags;
             window.Flags = flags;
-            window.ChildFlags = ctx.NextWindowData.Flags.HasFlag() ? ctx.NextWindowData.ChildFlags : 0;
+            window.ChildFlags = ctx.NextWindowData.Flags.HasFlag(ImGuiNextWindowDataFlags.HasChildFlags)
+                ? ctx.NextWindowData.ChildFlags
+                : ImGuiChildFlags.None;
+            
             window.LastFrameActive = currentFrame;
             window.LastTimeActive = (float)ctx.Time;
             window.BeginOrderWithinParent = 0;
@@ -279,7 +282,7 @@ public static partial class ImGui
         // Parent window is latched only on the first call to Begin() of the frame, so further append-calls can be done
         // from a different window stack
 #if USE_DOCKING
-        ImGuiWindow? parentWindowInStack = window.DockIsActive && window.DockNode.HostWindow != null
+        ImGuiWindow? parentWindowInStack = window.DockIsActive && window.DockNode?.HostWindow != null
             ? window.DockNode.HostWindow
             : ctx.CurrentWindowStack.LastOrDefault()?.Window;
 #else
@@ -501,10 +504,10 @@ public static partial class ImGui
     #region -- Child Windows
 
     public static bool BeginChild(string strId, SizeF size = default, ImGuiChildFlags childFlags = ImGuiChildFlags.None,
-        ImGuiWindowFlags windowFlags = ImGuiWindowFlags.None);
+        ImGuiWindowFlags windowFlags = ImGuiWindowFlags.None) => throw new NotImplementedException();
 
     public static bool BeginChild(uint id, SizeF size = default, ImGuiChildFlags childFlags = ImGuiChildFlags.None,
-        ImGuiWindowFlags windowFlags = ImGuiWindowFlags.None);
+        ImGuiWindowFlags windowFlags = ImGuiWindowFlags.None) => throw new NotImplementedException();
 
     public static void EndChild()
     {
@@ -523,7 +526,7 @@ public static partial class ImGui
             ImGuiWindow parentWindow = ctx.CurrentWindow!;
             RectangleF bb = new RectangleF(parentWindow.DC.CursorPos.AsPoint(),
                 new SizeF(parentWindow.DC.CursorPos.AsPoint()) + childSize);
-            ItemSize(ref childSize);
+            ItemSize(childSize);
 
             if ((childWindow.DC.NavLayersActiveMask != 0 || childWindow.DC.NavWindowHasScrollY) &&
                 !childWindow.Flags.HasFlag(ImGuiWindowFlags.NavFlattened))
@@ -643,14 +646,19 @@ public static partial class ImGui
 
     #region -- Window manipulation
 
-    public static void SetNextWindowPos(Vector2 pos, ImGuiCond cond = ImGuiCond.None, Vector2 pivot = default);
-    public static void SetNextWindowSize(SizeF size, ImGuiCond cond = ImGuiCond.None);
-    public static void SetNextWindowSizeConstraints(SizeF min, SizeF max, ImGuiSizeCallback? customCallback = null, object? customCallbackData = null);
-    public static void SetNextWindowContentSize(SizeF size);
-    public static void SetNextWindowCollapsed(bool collapsed, ImGuiCond cond = ImGuiCond.None);
-    public static void SetNextWindowFocus();
-    public static void SetNextWindowScroll(Vector2 scroll);
-    public static void SetNextWindowBgAlpha(float alpha);
+    public static void SetNextWindowPos(Vector2 pos, ImGuiCond cond = ImGuiCond.None, Vector2 pivot = default) 
+        => throw new NotImplementedException();
+    public static void SetNextWindowSize(SizeF size, ImGuiCond cond = ImGuiCond.None) 
+        => throw new NotImplementedException();
+
+    public static void SetNextWindowSizeConstraints(SizeF min, SizeF max, ImGuiSizeCallback? customCallback = null,
+        object? customCallbackData = null) => throw new NotImplementedException();
+    public static void SetNextWindowContentSize(SizeF size) => throw new NotImplementedException();
+    public static void SetNextWindowCollapsed(bool collapsed, ImGuiCond cond = ImGuiCond.None) 
+        => throw new NotImplementedException();
+    public static void SetNextWindowFocus() => throw new NotImplementedException();
+    public static void SetNextWindowScroll(Vector2 scroll) => throw new NotImplementedException();
+    public static void SetNextWindowBgAlpha(float alpha) => throw new NotImplementedException();
 
     public static void SetWindowPos(Vector2 pos, ImGuiCond cond = ImGuiCond.None)
     {
@@ -660,13 +668,14 @@ public static partial class ImGui
 
     public static void SetWindowSize(SizeF size, ImGuiCond cond = ImGuiCond.None)
     {
-        ImGuiWindow window = EnsureContext().CurrentWindow;
+        ImGuiWindow window = EnsureContext().CurrentWindow!;
         SetWindowSize(window, size, cond);
     }
     
-    public static void SetWindowCollapsed(bool collapsed, ImGuiCond cond = ImGuiCond.None);
-    public static void SetWindowFocus();
-    public static void SetWindowFontScale(float scale);
+    public static void SetWindowCollapsed(bool collapsed, ImGuiCond cond = ImGuiCond.None)
+        => throw new NotImplementedException();
+    public static void SetWindowFocus() => throw new NotImplementedException();
+    public static void SetWindowFontScale(float scale) => throw new NotImplementedException();
 
     public static void SetWindowPos(string name, Vector2 pos, ImGuiCond cond = ImGuiCond.None)
     {
@@ -682,7 +691,8 @@ public static partial class ImGui
         SetWindowSize(window, size, cond);
     }
     
-    public static void SetWindowCollapsed(string name, bool collapsed, ImGuiCond cond = ImGuiCond.None);
+    public static void SetWindowCollapsed(string name, bool collapsed, ImGuiCond cond = ImGuiCond.None)
+        => throw new NotImplementedException();
 
     public static void SetWindowFocus(string? name)
     {
@@ -705,10 +715,10 @@ public static partial class ImGui
     // - Those functions are bound to be redesigned (they are confusing,
     //   incomplete and the Min/Max return values are in local window coordinates which increases confusion)
 
-    public static Vector2 GetContentRegionAvail();
-    public static Vector2 GetContentRegionMax();
-    public static Vector2 GetWindowContentRegionMin();
-    public static Vector2 GetWindowContentRegionMax();
+    public static Vector2 GetContentRegionAvail() => throw new NotImplementedException();
+    public static Vector2 GetContentRegionMax() => throw new NotImplementedException();
+    public static Vector2 GetWindowContentRegionMin() => throw new NotImplementedException();
+    public static Vector2 GetWindowContentRegionMax() => throw new NotImplementedException();
 
     #endregion
 
@@ -733,40 +743,40 @@ public static partial class ImGui
         set => throw new NotImplementedException();
     }
 
-    public static float GetScrollMaxX();
-    public static float GetScrollMaxY();
-    public static void SetScrollHereX(float centerXRatio = 0.5f);
-    public static void SetScrollHereY(float centerYRatio = 0.5f);
-    public static void SetScrollFromPosX(float localX, float centerXRatio = 0.5f);
-    public static void SetScrollFromPosY(float localY, float centerYRatio = 0.5f);
+    public static float GetScrollMaxX() => throw new NotImplementedException();
+    public static float GetScrollMaxY() => throw new NotImplementedException();
+    public static void SetScrollHereX(float centerXRatio = 0.5f) => throw new NotImplementedException();
+    public static void SetScrollHereY(float centerYRatio = 0.5f) => throw new NotImplementedException();
+    public static void SetScrollFromPosX(float localX, float centerXRatio = 0.5f) => throw new NotImplementedException();
+    public static void SetScrollFromPosY(float localY, float centerYRatio = 0.5f) => throw new NotImplementedException();
 
     #endregion
 
     #region -- Parameter stacks (shared)
 
-    public static void PushFont(ImFont font);
-    public static void PopFont();
-    public static void PushStyleColor(ImGuiCol idx, Color color);
-    public static void PopStyleColor(int count = 1);
-    public static void PushStyleVar(ImGuiStyleVar idx, float val);
-    public static void PushStyleVar(ImGuiStyleVar idx, Vector2 val);
-    public static void PopStyleVar(int count = 1);
-    public static void PushTabStop(bool tabStop);
-    public static void PopTabStop();
-    public static void PushButtonRepeat(bool repeat);
-    public static void PopButtonRepeat();
+    public static void PushFont(ImFont font) => throw new NotImplementedException();
+    public static void PopFont() => throw new NotImplementedException();
+    public static void PushStyleColor(ImGuiCol idx, Color color) => throw new NotImplementedException();
+    public static void PopStyleColor(int count = 1) => throw new NotImplementedException();
+    public static void PushStyleVar(ImGuiStyleVar idx, float val) => throw new NotImplementedException();
+    public static void PushStyleVar(ImGuiStyleVar idx, Vector2 val) => throw new NotImplementedException();
+    public static void PopStyleVar(int count = 1) => throw new NotImplementedException();
+    public static void PushTabStop(bool tabStop) => throw new NotImplementedException();
+    public static void PopTabStop() => throw new NotImplementedException();
+    public static void PushButtonRepeat(bool repeat) => throw new NotImplementedException();
+    public static void PopButtonRepeat() => throw new NotImplementedException();
 
     #endregion
     
     
     #region -- Parameter stacks (current window)
 
-    public static void PushItemWidth(float itemWidth);
-    public static void PopItemWidth();
-    public static void SetNextItemWidth(float itemWidth);
-    public static float CalcItemWidth();
-    public static void PushTextWrapPos(float wrapLocalPosX = 0);
-    public static void PopTextWrapPos();
+    public static void PushItemWidth(float itemWidth) => throw new NotImplementedException();
+    public static void PopItemWidth() => throw new NotImplementedException();
+    public static void SetNextItemWidth(float itemWidth) => throw new NotImplementedException();
+    public static float CalcItemWidth() => throw new NotImplementedException();
+    public static void PushTextWrapPos(float wrapLocalPosX = 0) => throw new NotImplementedException();
+    public static void PopTextWrapPos() => throw new NotImplementedException();
     
     #endregion
 
@@ -776,7 +786,7 @@ public static partial class ImGui
     public static ImFont Font => EnsureContext().Font;
     public static float FontSize => EnsureContext().FontSize;
     public static Vector2 FontTextUvWhitePixel => EnsureContext().DrawListSharedData.TexUvWhitePixel;
-    public static Color GetColor(ImGuiCol idx, float alphaMul = 1);
+    public static Color GetColor(ImGuiCol idx, float alphaMul = 1) => throw new NotImplementedException();
     
     #endregion
 
@@ -819,16 +829,16 @@ public static partial class ImGui
 
     #region -- Other layout functions
 
-    public static void Separator();
-    public static void SameLine(float offsetFromStartX = 0, float spacing = -1);
-    public static void NewLine();
-    public static void Spacing();
-    public static void Dummy(SizeF size);
-    public static void Indent(float indentW = 0);
-    public static void Unindent(float indentW = 0);
-    public static void BeginGroup();
-    public static void EndGroup();
-    public static void AlignTextToFramePadding();
+    public static void Separator() => throw new NotImplementedException();
+    public static void SameLine(float offsetFromStartX = 0, float spacing = -1) => throw new NotImplementedException();
+    public static void NewLine() => throw new NotImplementedException();
+    public static void Spacing() => throw new NotImplementedException();
+    public static void Dummy(SizeF size) => throw new NotImplementedException();
+    public static void Indent(float indentW = 0) => throw new NotImplementedException();
+    public static void Unindent(float indentW = 0) => throw new NotImplementedException();
+    public static void BeginGroup() => throw new NotImplementedException();
+    public static void EndGroup() => throw new NotImplementedException();
+    public static void AlignTextToFramePadding() => throw new NotImplementedException();
 
     public static float TextLineHeight => throw new NotImplementedException();
     public static float TextLineHeightWithSpacing => throw new NotImplementedException();
@@ -849,10 +859,10 @@ public static partial class ImGui
     // - In this header file we use the "label"/"name" terminology to denote a string that will be displayed + used as an ID,
     //   whereas "str_id" denote a string that is only used as an ID and not normally displayed.
 
-    public static void PushID(string id);
-    public static void PushID(int id);
-    public static void PopID();
-    public static void GetID(string id);
+    public static void PushID(string id) => throw new NotImplementedException();
+    public static void PushID(int id) => throw new NotImplementedException();
+    public static void PopID() => throw new NotImplementedException();
+    public static void GetID(string id) => throw new NotImplementedException();
 
     #endregion
 
@@ -860,23 +870,24 @@ public static partial class ImGui
     // - Tooltips are windows following the mouse. They do not take focus away.
     // - A tooltip window can contain items of any types. SetTooltip() is a shortcut for the 'if (BeginTooltip()) { Text(...); EndTooltip(); }' idiom.
 
-    public static bool BeginTooltip();
-    public static void EndTooltip();
-    public static void SetTooltip(string text);
+    public static bool BeginTooltip() => throw new NotImplementedException();
+    public static void EndTooltip() => throw new NotImplementedException();
+    public static void SetTooltip(string text) => throw new NotImplementedException();
 
-    public static bool BeginItemTooltip();
-    public static void SetItemTooltip(string text);
+    public static bool BeginItemTooltip() => throw new NotImplementedException();
+    public static void SetItemTooltip(string text) => throw new NotImplementedException();
 
     #endregion
 
     #region -- Popups, Modals
 
-    public static bool BeginPopup(string strId, ImGuiWindowFlags flags = ImGuiWindowFlags.None);
+    public static bool BeginPopup(string strId, ImGuiWindowFlags flags = ImGuiWindowFlags.None) 
+        => throw new NotImplementedException();
 
     public static unsafe bool BeginPopupModal(string name, bool* open = null,
-        ImGuiWindowFlags flags = ImGuiWindowFlags.None);
+        ImGuiWindowFlags flags = ImGuiWindowFlags.None) => throw new NotImplementedException();
 
-    public static void EndPopup();
+    public static void EndPopup() => throw new NotImplementedException();
 
     #endregion
 
@@ -889,13 +900,13 @@ public static partial class ImGui
     // - Use IsWindowAppearing() after BeginPopup() to tell if a window just opened.
     // - IMPORTANT: Notice that for OpenPopupOnItemClick() we exceptionally default flags to 1 (== ImGuiPopupFlags_MouseButtonRight) for backward compatibility with older API taking 'int mouse_button = 1' parameter
 
-    public static void OpenPopup(string strId, ImGuiPopupFlags flags = ImGuiPopupFlags.None);
-    public static void OpenPopup(uint id, ImGuiPopupFlags flags = ImGuiPopupFlags.None);
+    public static void OpenPopup(string strId, ImGuiPopupFlags flags = ImGuiPopupFlags.None) => throw new NotImplementedException();
+    public static void OpenPopup(uint id, ImGuiPopupFlags flags = ImGuiPopupFlags.None) => throw new NotImplementedException();
 
     public static void OpenPopupOnItemClick(string? strId = null,
-        ImGuiPopupFlags flags = ImGuiPopupFlags.MouseButtonRight);
+        ImGuiPopupFlags flags = ImGuiPopupFlags.MouseButtonRight) => throw new NotImplementedException();
 
-    public static void CloseCurrentPopup();
+    public static void CloseCurrentPopup() => throw new NotImplementedException();
 
     #endregion
 
@@ -906,13 +917,13 @@ public static partial class ImGui
     // - IMPORTANT: Notice that we exceptionally default their flags to 1 (== ImGuiPopupFlags_MouseButtonRight) for backward compatibility with older API taking 'int mouse_button = 1' parameter, so if you add other flags remember to re-add the ImGuiPopupFlags_MouseButtonRight.
 
     public static bool BeginPopupContextItem(string? strId = null, 
-        ImGuiPopupFlags flags = ImGuiPopupFlags.MouseButtonRight);
+        ImGuiPopupFlags flags = ImGuiPopupFlags.MouseButtonRight) => throw new NotImplementedException();
     
     public static bool BeginPopupContextWindow(string? strId = null,
-        ImGuiPopupFlags flags = ImGuiPopupFlags.MouseButtonRight);
+        ImGuiPopupFlags flags = ImGuiPopupFlags.MouseButtonRight) => throw new NotImplementedException();
     
     public static bool BeginPopupContextVoid(string? strId = null,
-        ImGuiPopupFlags flags = ImGuiPopupFlags.MouseButtonRight);
+        ImGuiPopupFlags flags = ImGuiPopupFlags.MouseButtonRight) => throw new NotImplementedException();
 
     #endregion
 
@@ -921,7 +932,54 @@ public static partial class ImGui
     // - IsPopupOpen() with ImGuiPopupFlags_AnyPopupId: return true if any popup is open at the current BeginPopup() level of the popup stack.
     // - IsPopupOpen() with ImGuiPopupFlags_AnyPopupId + ImGuiPopupFlags_AnyPopupLevel: return true if any popup is open.
 
-    public static bool IsPopupOpen(string strId, ImGuiPopupFlags flags = ImGuiPopupFlags.None);
+    public static bool IsPopupOpen(string strId, ImGuiPopupFlags flags = ImGuiPopupFlags.None) 
+        => throw new NotImplementedException();
+
+    #endregion
+    
+    #region -- Tables
+    // Implementations are in ImGui.Tables.cs
+    #endregion
+
+    #region -- Tables: Headers & Columns declaration
+    // Implementations are in ImGui.Tables.cs
+    #endregion
+
+    #region -- Tables: Sorting & Miscellaneous functions
+    // Implementations are in ImGui.Tables.cs
+    #endregion
+
+    #region -- Legacy Columns API (prefer using Tables!)
+    // Implementations are in ImGui.Tables.cs
+    #endregion
+
+    #region -- Tab Bars, Tabs
+    // Implementations are in ImGui.Tables.cs
+    #endregion
+
+#if USE_DOCKING
+    #region -- Docking
+
+    public static uint GetWindowDockId() => throw new NotImplementedException();
+    public static bool IsWindowDocked() => throw new NotImplementedException();
+    
+    #endregion
+#endif
+    
+    #region -- Clipping
+
+    public static void PushClipRect(Vector2 clipRectMin, Vector2 clipRectMax, bool intersectWithCurrentClipRect) 
+        => throw new NotImplementedException();
+    public static void PopClipRect() => throw new NotImplementedException();
+
+    #endregion
+
+    #region -- Text Utilities
+
+    public static SizeF CalcTextSize(string text, bool hideTextAfterDoubleHash = false, float wrapWidth = -1)
+    {
+        throw new NotImplementedException();
+    }
 
     #endregion
 
@@ -931,11 +989,13 @@ public static partial class ImGui
 
     public static ImGuiPlatformIO PlatformIO => EnsureContext().PlatformIO;
 
-    public static void UpdatePlatformWindows();
-    public static void RenderPlatformWindowsDefault(object? platformRenderArg = null, object? rendererRenderArg = null);
-    public static void DestroyPlatformWindows();
-    public static ImGuiViewport FindViewportByID(uint id);
-    public static ImGuiViewport FindViewportByPlatformHandle(object? platformHandle);
+    public static void UpdatePlatformWindows() => throw new NotImplementedException();
+    public static void RenderPlatformWindowsDefault(object? platformRenderArg = null, object? rendererRenderArg = null) 
+        => throw new NotImplementedException();
+    public static void DestroyPlatformWindows() => throw new NotImplementedException();
+    public static ImGuiViewport FindViewportByID(uint id) => throw new NotImplementedException();
+    public static ImGuiViewport FindViewportByPlatformHandle(object? platformHandle) 
+        => throw new NotImplementedException();
 
     #endregion
     
@@ -1006,7 +1066,7 @@ public static partial class ImGui
         0xB3667A2E, 0xC4614AB8, 0x5D681B02, 0x2A6F2B94, 0xB40BBE37, 0xC30C8EA1, 0x5A05DF1B, 0x2D02EF8D,
     };
 
-    private static unsafe uint ImHashData(void* dataPtr, int dataSize, uint seed = 0) 
+    internal static unsafe uint ImHashData(void* dataPtr, int dataSize, uint seed = 0) 
     {
         uint crc = ~seed;
         byte* data = (byte*) dataPtr;
@@ -1019,7 +1079,7 @@ public static partial class ImGui
         return ~crc;
     }
 
-    private static uint ImHashData(byte[] data, uint seed = 0) 
+    internal static uint ImHashData(byte[] data, uint seed = 0) 
     {
         unsafe 
         {
@@ -1129,6 +1189,12 @@ public static partial class ImGui
 #endif
     }
 
+    private static ImGuiHoveredFlags ApplyHoverFlagsForTooltip(ImGuiHoveredFlags userFlags,
+        ImGuiHoveredFlags sharedFlags)
+    {
+        throw new NotImplementedException();
+    }
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static float Truncate(this float f) => (int) f;
 
@@ -1140,7 +1206,87 @@ public static partial class ImGui
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static Vector2 AsVector(this PointF p) => new Vector2(p.X, p.Y);
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static SizeF AsSize(this Vector2 v) => new SizeF(v.X, v.Y);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal static Vector2 LowerRight(this RectangleF r) => (r.Location + r.Size).AsVector();
+
+    
+#if !NET6_0_OR_GREATER
+    internal static IEnumerable<TSource[]> Chunk<TSource>(this IEnumerable<TSource> source, int size)
+    {
+        if (source == null!)
+        {
+            // ThrowHelper.ThrowArgumentNullException(ExceptionArgument.source);
+            throw new ArgumentNullException(nameof(source));
+        }
+
+        if (size < 1)
+        {
+            // ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.size);
+            throw new ArgumentOutOfRangeException(nameof(size));
+        }
+
+        return source is TSource[] {Length: 0} ? ArraySegment<TSource[]>.Empty : ChunkIterator(source, size);
+    }
+    
+    private static IEnumerable<TSource[]> ChunkIterator<TSource>(IEnumerable<TSource> source, int size)
+    {
+        using IEnumerator<TSource> e = source.GetEnumerator();
+
+        // Before allocating anything, make sure there's at least one element.
+        if (e.MoveNext())
+        {
+            // Now that we know we have at least one item, allocate an initial storage array. This is not
+            // the array we'll yield.  It starts out small in order to avoid significantly overallocating
+            // when the source has many fewer elements than the chunk size.
+            int arraySize = Math.Min(size, 4);
+            int i;
+            do
+            {
+                var array = new TSource[arraySize];
+
+                // Store the first item.
+                array[0] = e.Current;
+                i = 1;
+
+                if (size != array.Length)
+                {
+                    // This is the first chunk. As we fill the array, grow it as needed.
+                    for (; i < size && e.MoveNext(); i++)
+                    {
+                        if (i >= array.Length)
+                        {
+                            arraySize = (int)Math.Min((uint)size, 2 * (uint)array.Length);
+                            Array.Resize(ref array, arraySize);
+                        }
+
+                        array[i] = e.Current;
+                    }
+                }
+                else
+                {
+                    // For all but the first chunk, the array will already be correctly sized.
+                    // We can just store into it until either it's full or MoveNext returns false.
+                    TSource[] local = array; // avoid bounds checks by using cached local (`array` is lifted to iterator object as a field)
+                    Debug.Assert(local.Length == size);
+                    for (; (uint)i < (uint)local.Length && e.MoveNext(); i++)
+                    {
+                        local[i] = e.Current;
+                    }
+                }
+
+                if (i != array.Length)
+                {
+                    Array.Resize(ref array, i);
+                }
+
+                yield return array;
+            }
+            while (i >= size && e.MoveNext());
+        }
+    }
+#endif
 }

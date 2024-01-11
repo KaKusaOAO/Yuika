@@ -15,7 +15,8 @@ internal class ImGuiMenuColumns
     public ushort OffsetMark { get; set; }
     public ushort[] Widths { get; set; } = new ushort[4];
 
-    public void Update(float spacing, bool windowReappearing);
-    public float DeclColumns(float wIcon, float wLabel, float wShortcut, float wMark);
-    public float CalcNextTotalWidth(bool updateOffsets);
+    public void Update(float spacing, bool windowReappearing) => throw new NotImplementedException();
+    public float DeclColumns(float wIcon, float wLabel, float wShortcut, float wMark) 
+        => throw new NotImplementedException();
+    public float CalcNextTotalWidth(bool updateOffsets) => throw new NotImplementedException();
 }

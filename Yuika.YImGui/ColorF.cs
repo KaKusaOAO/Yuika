@@ -8,12 +8,12 @@ using System.Runtime.CompilerServices;
 
 namespace Yuika.YImGui;
 
-public readonly struct ColorF
+public struct ColorF
 {
-    public readonly float R;
-    public readonly float G;
-    public readonly float B;
-    public readonly float A;
+    public float R;
+    public float G;
+    public float B;
+    public float A;
 
     public static ColorF White { get; } = new ColorF(1, 1, 1);
     public static ColorF Black { get; } = new ColorF(0, 0, 0);

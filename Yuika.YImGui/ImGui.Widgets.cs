@@ -49,23 +49,26 @@ public static partial class ImGui
         }
     }
     
-    public static void LabelText(string label);
-    public static void BulletText(string text);
-    public static void SeparatorText(string label);
+    public static void LabelText(string label) => throw new NotImplementedException();
+    public static void BulletText(string text) => throw new NotImplementedException();
+    public static void SeparatorText(string label) => throw new NotImplementedException();
 
     #endregion
 
     #region -- Main
 
-    public static bool Button(string label, SizeF size = default);
-    public static bool SmallButton(string label);
-    public static bool InvisibleButton(string strId, SizeF size, ImGuiButtonFlags flags = ImGuiButtonFlags.None);
-    public static bool ArrowButton(string strId, ImGuiDir dir);
-    public static unsafe bool CheckBox(string label, bool* v);
-    public static unsafe bool CheckboxFlags(string label, int* flags, int flagsValue);
-    public static unsafe bool CheckboxFlags(string label, uint* flags, uint flagsValue);
-    public static bool RadioButton(string label, bool active);
-    public static unsafe bool RadioButton(string label, int* v, int vButton);
+    public static bool Button(string label, SizeF size = default) => throw new NotImplementedException();
+    public static bool SmallButton(string label) => throw new NotImplementedException();
+    public static bool InvisibleButton(string strId, SizeF size, ImGuiButtonFlags flags = ImGuiButtonFlags.None) 
+        => throw new NotImplementedException();
+    public static bool ArrowButton(string strId, ImGuiDir dir) => throw new NotImplementedException();
+    public static unsafe bool CheckBox(string label, bool* v) => throw new NotImplementedException();
+    public static unsafe bool CheckboxFlags(string label, int* flags, int flagsValue) 
+        => throw new NotImplementedException();
+    public static unsafe bool CheckboxFlags(string label, uint* flags, uint flagsValue) 
+        => throw new NotImplementedException();
+    public static bool RadioButton(string label, bool active) => throw new NotImplementedException();
+    public static unsafe bool RadioButton(string label, int* v, int vButton) => throw new NotImplementedException();
 
     public static void ProgressBar(float fraction, SizeF? size = null, string? overlay = null)
     {
@@ -73,11 +76,14 @@ public static partial class ImGui
         throw new NotImplementedException();
     }
 
-    public static void Bullet();
+    public static void Bullet() => throw new NotImplementedException();
 
     #endregion
-    
-    
+
+    #region -- Internal
+
+    #region -- Widgets
+
     private static void TextEx(string text, ImGuiTextFlags flags)
     {
         ImGuiWindow window = CurrentWindow;
@@ -92,15 +98,31 @@ public static partial class ImGui
         if (text.Length <= 2000 || wrapEnabled)
         {
             float wrapWidth = wrapEnabled ? CalcWrapWidthForPos(window.DC.CursorPos, wrapPosX) : 0;
-            SizeF textSize = CalcTextSize(text, false, wrapWidth);
+            SizeF textSize = CalcTextSize(text, wrapWidth: wrapWidth);
 
-            RectangleF bb = new RectangleF(new PointF(textPos), new SizeF(textPos) + textSize);
-            ItemSize(ref textSize, 0);
+            RectangleF bb = new RectangleF(textPos.AsPoint(), textPos.AsSize() + textSize);
+            ItemSize(textSize, 0);
             if (!ItemAdd(bb, 0)) return;
 
-            RenderTextWrapped(bb.Location, text, wrapWidth);
+            RenderTextWrapped(bb.Location.AsVector(), text, wrapWidth);
         }
 
         throw new NotImplementedException();
     }
+
+    private static void ButtonEx(string label, SizeF? size = null, ImGuiButtonFlags flags = ImGuiButtonFlags.None)
+    {
+        size ??= SizeF.Empty;
+        throw new NotImplementedException();
+    }
+
+    private static void ArrowButtonEx(string strId, ImGuiDir dir, SizeF size,
+        ImGuiButtonFlags flags = ImGuiButtonFlags.None)
+    {
+        throw new NotImplementedException();
+    }
+    
+    #endregion
+
+    #endregion
 }

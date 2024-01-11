@@ -10,9 +10,9 @@ public class ImDrawListSplitter
     public int Count { get; set; }
     public List<ImDrawChannel> Channels { get; set; } = new List<ImDrawChannel>();
 
-    public void Clear();
-    public void ClearFreeMemory();
-    public void Split();
-    public void Merge();
-    public void SetCurrentChannel();
+    public void Clear() => throw new NotImplementedException();
+    public void ClearFreeMemory() => throw new NotImplementedException();
+    public void Split(ImDrawList drawList, int channelsCount) => throw new NotImplementedException();
+    public void Merge(ImDrawList drawList) => throw new NotImplementedException();
+    public void SetCurrentChannel(ImDrawList drawList, int index) => throw new NotImplementedException();
 }

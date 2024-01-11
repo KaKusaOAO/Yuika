@@ -16,6 +16,6 @@ internal class ImGuiStackSizes
     public short SizeOfBeginPopupStack { get; set; }
     public short SizeOfDisabledStack { get; set; }
 
-    public void SetToContextState(ImGuiContext ctx);
-    public void CompareWithContextState(ImGuiContext ctx);
+    public void SetToContextState(ImGuiContext ctx) => throw new NotImplementedException();
+    public void CompareWithContextState(ImGuiContext ctx) => throw new NotImplementedException();
 }

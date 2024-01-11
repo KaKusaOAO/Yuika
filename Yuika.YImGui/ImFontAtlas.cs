@@ -111,8 +111,7 @@ public class ImFontAtlas
     public bool Build()
     {
         ThrowIfLocked();
-        
-        
+        throw new NotImplementedException();
     }
 
     public unsafe ImFontTexData GetTexDataAsAlpha8()

@@ -19,8 +19,8 @@ public class ImGuiInputTextCallbackData
     public int SelectionStart { get; set; }
     public int SelectionEnd { get; set; }
 
-    public void DeleteChars(int pos, int count);
-    public void InsertChars(int pos, string text);
+    public void DeleteChars(int pos, int count) => throw new NotImplementedException();
+    public void InsertChars(int pos, string text) => throw new NotImplementedException();
 
     public void SelectAll()
     {

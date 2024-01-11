@@ -46,7 +46,7 @@ internal class ImGuiListClipper
         ImGui.DebugLog("Clipper: Begin({0},{1:f2}) in '{2}'", itemsCount, itemsHeight, window.Name);
 
         {
-            ImGuiTable? table = ctx.CurrentWindow;
+            ImGuiTable? table = ctx.CurrentTable;
             if (table != null && table.IsInsideRow)
             {
                 ImGui.TableEndRow(table);
@@ -364,20 +364,10 @@ internal class ImGuiListClipper
             data.Ranges.Add(ImGuiListClipperRange.FromIndices(itemBegin, itemEnd));
         }
     }
-}
 
-internal class ImGuiListClipperData
-{
-    public ImGuiListClipper ListClipper { get; set; }
-    public float LossynessOffset { get; set; }
-    public int StepNo { get; set; }
-    public int ItemsFrozen { get; set; }
-    public List<ImGuiListClipperRange> Ranges { get; set; } = new List<ImGuiListClipperRange>();
-
-    public void Reset(ImGuiListClipper clipper)
+    private static bool GetSkipItemForListClipping()
     {
-        ListClipper = clipper;
-        StepNo = ItemsFrozen = 0;
-        Ranges.Clear();
+        ImGuiContext ctx = ImGui.EnsureContext();
+        return ctx.CurrentTable?.HostSkipItems ?? ctx.CurrentWindow!.SkipItems;
     }
 }

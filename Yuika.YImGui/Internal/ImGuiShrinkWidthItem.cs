@@ -4,8 +4,9 @@
 
 namespace Yuika.YImGui.Internal;
 
-[Flags]
-internal enum ImGuiChildFlags
+internal struct ImGuiShrinkWidthItem
 {
-    
+    public int Index;
+    public float Width;
+    public float InitialWidth;
 }

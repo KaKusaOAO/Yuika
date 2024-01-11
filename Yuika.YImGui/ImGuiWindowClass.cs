@@ -4,6 +4,8 @@
 
 namespace Yuika.YImGui;
 
+#if USE_DOCKING
+
 public class ImGuiWindowClass
 {
     public uint ClassId { get; set; }
@@ -15,3 +17,5 @@ public class ImGuiWindowClass
     public bool DockingAlwaysTabBar { get; set; }
     public bool DockingAllowUnclassed { get; set; } = true;
 }
+
+#endif

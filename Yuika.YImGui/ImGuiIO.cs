@@ -12,6 +12,7 @@ using Yuika.YImGui.Internal;
 
 namespace Yuika.YImGui;
 
+// ReSharper disable once InconsistentNaming
 public class ImGuiIO
 {
     public const int MouseButtonCount = 5;
@@ -53,7 +54,7 @@ public class ImGuiIO
     
     public bool MouseDrawCursor { get; set; }
 
-#if NET6_0
+#if NET6_0_OR_GREATER
     [SupportedOSPlatformGuard("macos")]
     [SupportedOSPlatformGuard("tvos")]
     [SupportedOSPlatformGuard("ios")]

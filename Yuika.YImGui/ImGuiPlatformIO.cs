@@ -9,6 +9,7 @@ namespace Yuika.YImGui;
 
 #if USE_DOCKING
 
+// ReSharper disable once InconsistentNaming
 public class ImGuiPlatformIO 
 {
     public ViewportCallback? PlatformCreateWindow { get; set; }

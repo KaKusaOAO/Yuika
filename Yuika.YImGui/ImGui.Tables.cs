@@ -2,6 +2,8 @@
 // Copyright (C) Yui (KaKusaOAO).
 // All rights reserved.
 
+using Yuika.YImGui.Internal;
+
 namespace Yuika.YImGui;
 
 public static partial class ImGui
@@ -28,7 +30,33 @@ public static partial class ImGui
     //        - TableNextRow()                           -> Text("Hello 0")                                               // Not OK! Missing TableSetColumnIndex() or TableNextColumn()! Text will not appear!
     // - 5. Call EndTable()
     
+    #endregion
+
+    #region -- Tables: Headers & Columns declaration
+    // ...
+    #endregion
+
+    #region -- Tables: Sorting & Miscellaneous functions
+    // ...
+    #endregion
+
+    #region -- Legacy Columns API (prefer using Tables!)
+    // ...
+    #endregion
+
+    #region -- Internal
     
+    
+    #region -- Tables: Internals
+    internal static void TableEndRow(ImGuiTable table)
+    {
+        throw new NotImplementedException();
+    }
+    #endregion
+
+    #region -- Tables: Settings
+    // ...
+    #endregion
 
     #endregion
 }

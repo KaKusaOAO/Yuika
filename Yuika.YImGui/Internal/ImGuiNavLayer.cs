@@ -7,5 +7,7 @@ namespace Yuika.YImGui.Internal;
 internal enum ImGuiNavLayer
 {
     Main,
-    Menu
+    Menu,
+    
+    EntryCount
 }

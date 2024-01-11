@@ -11,10 +11,15 @@ internal class ImGuiContext : IImGuiContext
 {
     public bool Initialized { get; set; }
     public bool FontAtlasOwnedByContext { get; set; }
+    
+    // ReSharper disable once InconsistentNaming
     public ImGuiIO IO { get; } = new ImGuiIO();
+    
 #if USE_DOCKING
+    // ReSharper disable once InconsistentNaming
     public ImGuiPlatformIO PlatformIO { get; } = new ImGuiPlatformIO();
 #endif
+    
     public ImGuiStyle Style { get; set; }
     public ImFont Font { get; set; }
     public float FontSize { get; set; }
@@ -29,13 +34,17 @@ internal class ImGuiContext : IImGuiContext
     public bool WithinFrameScopeWithImplicitWindow { get; set; }
     public bool WithinEndChild { get; set; }
 
-    // Inputs
+    #region -- Inputs
+    
     public List<ImGuiInputEvent> InputEventsQueue { get; set; } = new List<ImGuiInputEvent>();
     public List<ImGuiInputEvent> InputEventsTrail { get; set; } = new List<ImGuiInputEvent>();
     public ImGuiMouseSource InputEventsNextMouseSource { get; set; }
     public uint InputEventsNextEventId { get; set; }
 
-    // Windows state
+    #endregion
+
+    #region -- Windows state
+    
     public List<ImGuiWindow> Windows { get; set; } = new List<ImGuiWindow>();
     public List<ImGuiWindow> WindowsFocusOrder { get; set; } = new List<ImGuiWindow>();
     public List<ImGuiWindow> WindowsTempSortOrder { get; set; } = new List<ImGuiWindow>();
@@ -55,7 +64,10 @@ internal class ImGuiContext : IImGuiContext
     public Vector2 WheelingWindowWheelRemainder { get; set; }
     public Vector2 WheelingAxisAvg { get; set; }
 
-    // Item / widgets state and tracking information
+    #endregion
+
+    #region -- Item / widgets state and tracking information
+
     public uint DebugHookIdInfo { get; set; }
     public uint HoveredId { get; set; }
     public uint HoveredIdPreviousFrame { get; set; }
@@ -91,8 +103,11 @@ internal class ImGuiContext : IImGuiContext
     public uint ActiveIdUsingNavDirMask { get; set; }
     public bool ActiveIdUsingAllKeyboardKeys { get; set; }
     public ImGuiKeyChord DebugBreakInShortcutRouting { get; set; }
+    
+    #endregion
 
-    // Next window/item data
+    #region -- Next window/item data
+
     public uint CurrentFocusScopeId { get; set; }
     public ImGuiItemFlags CurrentItemFlags { get; set; }
     public uint DebugLocateId { get; set; }
@@ -101,7 +116,10 @@ internal class ImGuiContext : IImGuiContext
     public ImGuiNextWindowData NextWindowData { get; set; }
     public bool DebugShowGroupRects { get; set; }
 
-    // Shared stacks
+    #endregion
+
+    #region -- Shared stacks
+    
     public ImGuiCol DebugFlashStyleColorIdx { get; set; }
     public List<ImFont> FontStack { get; set; } = new List<ImFont>();
     public List<uint> FocusScopeStack { get; set; } = new List<uint>();
@@ -110,9 +128,12 @@ internal class ImGuiContext : IImGuiContext
     public List<ImGuiPopupData> BeginPopupStack { get; set; } = new List<ImGuiPopupData>();
     public List<ImGuiNavTreeNodeData> NavTreeNodeStack { get; set; } = new List<ImGuiNavTreeNodeData>();
 
+    #endregion
+
     public int BeginMenuCount { get; set; }
 
-    // Viewports
+    #region -- Viewports
+
     public List<ImGuiViewportP> Viewports { get; set; } = new List<ImGuiViewportP>();
 
 #if USE_DOCKING
@@ -127,7 +148,11 @@ internal class ImGuiContext : IImGuiContext
     public int ViewportFocusedStampCount { get; set; }
 #endif
 
-    // Gamepad / keyboard Navigation
+    #endregion
+    
+
+    #region -- Gamepad / keyboard Navigation
+    
     public ImGuiWindow? NavWindow { get; set; }
     public uint NavId { get; set; }
     public uint NavFocusScopeId { get; set; }
@@ -147,8 +172,10 @@ internal class ImGuiContext : IImGuiContext
     public bool NavMousePosDirty { get; set; }
     public bool NavDisableHighlight { get; set; }
     public bool NavDisableMouseHover { get; set; }
+    
+    #endregion
 
-    // Navigation: Init & Move Requests
+    #region -- Navigation: Init & Move Requests
     public bool NavAnyRequest { get; set; }
     public bool NavInitRequest { get; set; }
     public bool NavInitRequestFromMove { get; set; }
@@ -171,8 +198,10 @@ internal class ImGuiContext : IImGuiContext
     public ImGuiNavItemData NavMoveResultLocalVisible { get; set; }
     public ImGuiNavItemData NavMoveResultOther { get; set; }
     public ImGuiNavItemData NavTabbingResultFirst { get; set; }
+    #endregion
 
-    // Navigation: Windowing (Ctrl-Tab for list, or Menu button + keys or directional pads to move/resize)
+    #region -- Navigation: Windowing 
+    // (Ctrl-Tab for list, or Menu button + keys or directional pads to move/resize)
     public ImGuiKeyChord ConfigNavWindowingKeyNext { get; set; }
     public ImGuiKeyChord ConfigNavWindowingKeyPrev { get; set; }
     public ImGuiWindow NavWindowingTarget { get; set; }
@@ -183,11 +212,13 @@ internal class ImGuiContext : IImGuiContext
     public bool NavWindowingToggleLayer { get; set; }
     public Vector2 NavWindowingAccumDeltaPos { get; set; }
     public SizeF NavWindowingAccumDeltaSize { get; set; }
+    #endregion
 
-    // Render
+    #region -- Render
     public float DimBgRatio { get; set; }
-
-    // Drag and Drop
+    #endregion
+    
+    #region -- Drag and Drop
     public bool DragDropActive { get; set; }
     public bool DragDropWithinSource { get; set; }
     public bool DragDropWithinTarget { get; set; }
@@ -205,12 +236,14 @@ internal class ImGuiContext : IImGuiContext
     public int DragDropAcceptFrameCount { get; set; }
     public uint DragDropHoldJustPressedId { get; set; }
     public object? DragDropPayloadObj { get; set; }
+    #endregion
 
-    // Clipper
+    #region -- Clipper
     public int ClipperTempDataStacked { get; set; }
     public List<ImGuiListClipperData> ClipperTempData { get; set; } = new List<ImGuiListClipperData>();
+    #endregion
 
-    // Tables
+    #region -- Tables
     public ImGuiTable? CurrentTable { get; set; }
     public uint DebugBreakInTable { get; set; }
     public int TablesTempDataStacked { get; set; }
@@ -218,41 +251,63 @@ internal class ImGuiContext : IImGuiContext
     public ImPool<ImGuiTable> Tables { get; set; } = new ImPool<ImGuiTable>();
     public List<float> TablesLastTimeActive { get; set; } = new List<float>();
     public List<ImDrawChannel> DrawChannelsTempMergeBuffer { get; set; } = new List<ImDrawChannel>();
-
-    // Tab bars
+    #endregion
+    
+    #region -- Tab bars
     public ImGuiTabBar? CurrentTabBar { get; set; }
     public ImPool<ImGuiTabBar> TabBars { get; set; } = new ImPool<ImGuiTabBar>();
     public List<Either<object, int>> CurrentTabBarStack { get; set; } = new List<Either<object, int>>();
     public List<ImGuiShrinkWidthItem> ShrinkWidthBuffer { get; set; } = new List<ImGuiShrinkWidthItem>();
+    #endregion
     
-    // Hover delay system
+    #region -- Hover delay system
     public uint HoverItemDelayId { get; set; }
     public uint HoverItemDelayIdPreviousFrame { get; set; }
     public float HoverItemDelayTimer { get; set; }
     public float HoverItemDelayClearTime { get; set; }
     public uint HoverItemUnlockedStationaryId { get; set; }
     public uint HoverWindowUnlockedStationaryId { get; set; }
+    #endregion
     
-    // Mouse state
+    #region -- Mouse state
     public ImGuiMouseCursor MouseCursor { get; set; }
     public float MouseStationaryTimer { get; set; }
     public Vector2 MouseLastValidPos;
+    #endregion
     
-    // Widget state
+    #region -- Widget state
+    
     public ImGuiInputTextState InputTextState { get; set; }
     public ImFont InputTextPasswordFont { get; set; }
 
-    // Debug Tools
+    #endregion
+
+    #region -- Settings
+    
+    public bool SettingsLoaded { get; set; }
+    public float SettingsDirtyTimer { get; set; }
+
+    #endregion
+
+    #region -- Capture/Logging
+
+    public bool LogEnabled { get; set; }
+
+    #endregion
+
+    #region -- Debug Tools
     public ImGuiDebugLogFlags DebugLogFlags { get; set; }
     public ImGuiDebugLogFlags DebugLogAutoDisableFlags { get; set; }
     public sbyte DebugBeginReturnValueCullDepth { get; set; }
+    #endregion
     
-    // Misc
+    #region -- Misc
     public float[] FramerateSecPerFrame { get; set; } = new float[60];
     public int FramerateSecPerFrameIdx { get; set; }
     public int FramerateSecPerFrameCount { get; set; }
     public float FramerateSecPerFrameAccum { get; set; }
-
+    #endregion
+    
     public ImGuiContext(ImFontAtlas? sharedFontAtlas)
     {
         IO.Ctx = this;

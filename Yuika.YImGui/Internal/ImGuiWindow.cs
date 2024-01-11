@@ -15,6 +15,9 @@ internal class ImGuiWindow : IImGuiWindow
     public ImGuiWindowFlags FlagsPreviousFrame { get; set; }
     public ImGuiWindowFlags Flags { get; set; }
     public ImGuiChildFlags ChildFlags { get; set; }
+#if USE_DOCKING
+    public ImGuiWindowClass WindowClass { get; set; }
+#endif
     public ImGuiViewportP Viewport { get; set; }
     public Vector2 Position { get; set; }
     public SizeF Size { get; set; }
@@ -103,9 +106,16 @@ internal class ImGuiWindow : IImGuiWindow
     public ImGuiWindow RootWindowPopupTree { get; set; }
     public ImGuiWindow RootWindowForTitleBarHighlight { get; set; }
     public ImGuiWindow RootWindowForNav { get; set; }
-
+    
+    public ImGuiWindow NavLastChildNavWindow { get; set; }
+    public uint[] NavLastIds { get; set; } = new uint[(int) ImGuiNavLayer.EntryCount];
+    public RectangleF[] NavRectRel { get; set; } = new RectangleF[(int) ImGuiNavLayer.EntryCount];
+    public Vector2[] NavPreferredScoringPosRel { get; set; } = new Vector2[(int) ImGuiNavLayer.EntryCount];
+    public uint NavRootFocusScopeId { get; set; }
+    
+    
 #if USE_DOCKING
-
+    // Docking
     public bool DockIsActive { get; set; }
     public bool DockNodeIsVisible { get; set; }
     public bool DockTabIsVisible { get; set; }
@@ -124,6 +134,22 @@ internal class ImGuiWindow : IImGuiWindow
 
         throw new NotImplementedException();
     }
-    
-    
+
+    public uint GetId(int n) => throw new NotImplementedException();
+    public uint GetId(string str) => throw new NotImplementedException();
+    public uint GetId(object? obj) => throw new NotImplementedException();
+
+    public unsafe uint GetId(IntPtr ptr)
+    {
+        uint seed = IdStack.Last();
+        uint id = ImGui.ImHashData((void*) ptr, IntPtr.Size, seed);
+
+        ImGuiContext ctx = Ctx;
+        if (ctx.DebugHookIdInfo == id)
+        {
+            ImGui.DebugHookIdInfo(id, ImGuiDataType.Pointer, ptr, null);
+        }
+        
+        return id;
+    }
 }

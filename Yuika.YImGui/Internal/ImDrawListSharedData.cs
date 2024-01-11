@@ -23,5 +23,5 @@ internal class ImDrawListSharedData
     public byte[] CircleSegmentCounts { get; set; } = new byte[64];
     public List<Vector4> TexUvLines { get; set; } = new List<Vector4>();
 
-    public void SetCircleTessellationMaxError(float maxError);
+    public void SetCircleTessellationMaxError(float maxError) => throw new NotImplementedException();
 }
