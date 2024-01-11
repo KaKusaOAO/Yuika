@@ -82,7 +82,7 @@ public class ImDrawList
         {
             // Anti-aliased Fill
             float aaSize = FringeScale;
-            ColorF colTrans = col with {A = 0};
+            ColorF colTrans = col.WithAlpha(0);
             int indexCount = (pointList.Count - 2) * 3 + pointList.Count * 6;
             int vertexCount = pointList.Count * 2;
             PrimReserve(indexCount, vertexCount);

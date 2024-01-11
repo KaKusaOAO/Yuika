@@ -343,7 +343,91 @@ public static partial class ImGui
         bool windowPosSetByApi = false;
         bool windowSizeXSetByApi = false;
         bool windowSizeYSetByApi = false;
-        
+
+        if (ctx.NextWindowData.Flags.HasFlag(ImGuiNextWindowDataFlags.HasPos))
+        {
+            windowPosSetByApi = window.SetWindowPosAllowFlags.HasFlag(ctx.NextWindowData.PosCond);
+            if (windowPosSetByApi && ctx.NextWindowData.PosPivotVal.LengthSquared() > 0.00001f)
+            {
+                window.SetWindowPosVal = ctx.NextWindowData.PosVal;
+                window.SetWindowPosPivot = ctx.NextWindowData.PosPivotVal;
+                window.SetWindowPosAllowFlags &= ~(ImGuiCond.Once | ImGuiCond.FirstUseEver | ImGuiCond.Appearing);
+            }
+            else
+            {
+                SetWindowPos(window, ctx.NextWindowData.PosVal, ctx.NextWindowData.PosCond);
+            }
+        }
+
+        if (ctx.NextWindowData.Flags.HasFlag(ImGuiNextWindowDataFlags.HasSize))
+        {
+            windowSizeXSetByApi = window.SetWindowSizeAllowFlags.HasFlag(ctx.NextWindowData.SizeCond) &&
+                                  ctx.NextWindowData.SizeVal.Width > 0;
+            
+            windowSizeYSetByApi = window.SetWindowSizeAllowFlags.HasFlag(ctx.NextWindowData.SizeCond) &&
+                                  ctx.NextWindowData.SizeVal.Height > 0;
+
+            if (window.ChildFlags.HasFlag(ImGuiChildFlags.ResizeX) &&
+                !window.SetWindowSizeAllowFlags.HasFlag(ImGuiCond.FirstUseEver))
+            {
+                ctx.NextWindowData.SizeVal.Width = window.SizeFull.Width;
+            }
+
+            if (window.ChildFlags.HasFlag(ImGuiChildFlags.ResizeY) &&
+                !window.SetWindowSizeAllowFlags.HasFlag(ImGuiCond.FirstUseEver))
+            {
+                ctx.NextWindowData.SizeVal.Height = window.SizeFull.Height;
+            }
+
+            SetWindowSize(window, ctx.NextWindowData.SizeVal, ctx.NextWindowData.SizeCond);
+        }
+
+        if (ctx.NextWindowData.Flags.HasFlag(ImGuiNextWindowDataFlags.HasScroll))
+        {
+            if (ctx.NextWindowData.ScrollVal.X >= 0)
+            {
+                window.ScrollTarget.X = ctx.NextWindowData.ScrollVal.X;
+                window.ScrollTargetCenterRatio.X = 0;
+            }
+
+            if (ctx.NextWindowData.ScrollVal.Y >= 0)
+            {
+                window.ScrollTarget.Y = ctx.NextWindowData.ScrollVal.Y;
+                window.ScrollTargetCenterRatio.Y = 0;
+            }
+        }
+
+        if (ctx.NextWindowData.Flags.HasFlag(ImGuiNextWindowDataFlags.HasContentSize))
+        {
+            window.ContentSizeExplicit = ctx.NextWindowData.ContentSizeVal;
+        }
+        else if (firstBeginOfTheFrame)
+        {
+            window.ContentSizeExplicit = SizeF.Empty;
+        }
+
+#if USE_DOCKING
+        if (ctx.NextWindowData.Flags.HasFlag(ImGuiNextWindowDataFlags.HasWindowClass))
+        {
+            window.WindowClass = ctx.NextWindowData.WindowClass;
+        }
+#endif
+
+        if (ctx.NextWindowData.Flags.HasFlag(ImGuiNextWindowDataFlags.HasCollpased))
+        {
+            SetWindowCollapsed(window, ctx.NextWindowData.CollapsedVal, ctx.NextWindowData.CollapsedCond);
+        }
+
+        if (ctx.NextWindowData.Flags.HasFlag(ImGuiNextWindowDataFlags.HasFocus))
+        {
+            FocusWindow(window);
+        }
+
+        if (window.Appearing)
+        {
+            SetWindowConditionAllowFlags(window, ImGuiCond.Appearing, false);
+        }
+         
         throw new NotImplementedException();
 
         // When reusing window again multiple times a frame, just append content (don't need to setup again)
@@ -355,45 +439,90 @@ public static partial class ImGui
             window.Active = true;
             window.HasCloseButton = open != null;
             window.ClipRect = new RectangleF(float.MinValue, float.MinValue, float.MaxValue, float.MaxValue);
-            throw new NotImplementedException();
+            window.DrawList.ResetForNewFrame();
+            window.DC.CurrentTableIdx = -1;
             
+#if USE_DOCKING
             if (flags.HasFlag(ImGuiWindowFlags.DockNodeHost))
             {
-                throw new NotImplementedException();
+                window.DrawList.ChannelsSplit(2);
+                window.DrawList.ChannelsSetCurrent(DockingHostDrawChannelFg);
             }
+#endif
 
-            throw new NotImplementedException();
+            if (window.MemoryCompacted)
+            {
+                GcAwakeTransientWindowBuffers(window);
+            }
             
+            // ReSharper disable once ReplaceWithSingleAssignment.False
             bool windowTitleVisibleElsewhere = false;
+            
+#if USE_DOCKING
             if ((window.Viewport != null && window.Viewport.Window == window) || window.DockIsActive)
             {
                 windowTitleVisibleElsewhere = true;
             }
+            else 
+#endif
+            if (ctx.NavWindowingListWindow != null && !window.Flags.HasFlag(ImGuiWindowFlags.NoNavFocus))
+            {
+                windowTitleVisibleElsewhere = true;
+            }
             
-            throw new NotImplementedException();
-
             if (windowTitleVisibleElsewhere && !windowJustCreated && name != window.Name)
             {
                 window.Name = name;
             }
 
+            CalcWindowContentSizes(window, window.ContentSize, window.ContentSizeIdeal);
+            if (window.HiddenFramesCanSkipItems > 0) window.HiddenFramesCanSkipItems--;
+            if (window.HiddenFramesCannotSkipItems > 0) window.HiddenFramesCannotSkipItems--;
+            if (window.HiddenFramesForRenderOnly > 0) window.HiddenFramesForRenderOnly--;
+
+            if (windowJustCreated && (!windowSizeXSetByApi || !windowSizeYSetByApi))
+            {
+                window.HiddenFramesCannotSkipItems = 1;
+            }
+
+            if (windowJustActivatedByUser && flags.HasFlag(ImGuiWindowFlags.Popup | ImGuiWindowFlags.Tooltip))
+            {
+                window.HiddenFramesCannotSkipItems = 1;
+                if (flags.HasFlag(ImGuiWindowFlags.AlwaysAutoResize))
+                {
+                    if (!windowSizeXSetByApi) window.Size.Width = window.SizeFull.Width = 0;
+                    if (!windowSizeYSetByApi) window.Size.Height = window.SizeFull.Height = 0;
+                    window.ContentSize = window.ContentSizeIdeal = SizeF.Empty;
+                }
+            }
+            
+            
             throw new NotImplementedException();
         }
-        else 
+        else
         {
-            throw new NotImplementedException();
+            // Append
+#if USE_DOCKING
+            SetCurrentViewport(window, window.Viewport);
+#endif
+            SetCurrentWindow(window);
         }
 
+#if USE_DOCKING
         if (!flags.HasFlag(ImGuiWindowFlags.DockNodeHost))
+#endif
         {
-            throw new NotImplementedException();
+            PushClipRect(window.InnerClipRect.Location.AsVector(), window.InnerClipRect.LowerRight(), true);
         }
 
-        throw new NotImplementedException();
+        window.WriteAccessed = false;
+        window.BeginCount++;
+        ctx.NextWindowData.ClearFlags();
 
         // Update visibility
         if (firstBeginOfTheFrame)
         {
+#if USE_DOCKING
             if (window.DockIsActive && !window.DockTabIsVisible)
             {
                 if (window.LastFrameJustFocused == ctx.FrameCount)
@@ -405,9 +534,46 @@ public static partial class ImGui
                     window.HiddenFramesCanSkipItems = 1;
                 }
             }
+#endif
 
-            throw new NotImplementedException();
-            
+            if (flags.HasFlag(ImGuiWindowFlags.ChildWindow) && !flags.HasFlag(ImGuiWindowFlags.ChildMenu))
+            {
+                Debug.Assert(flags.HasFlag(ImGuiWindowFlags.NoTitleBar) 
+#if USE_DOCKING
+                             || window.DockIsActive
+#endif
+                             );
+
+                bool navRequest = flags.HasFlag(ImGuiWindowFlags.NavFlattened) && ctx.NavAnyRequest &&
+                                  ctx.NavWindow != null && ctx.NavWindow.RootWindowForNav == window.RootWindowForNav;
+                if (!ctx.LogEnabled && !navRequest)
+                {
+                    if (window.OuterRectClipped.Location.X >= window.OuterRectClipped.LowerRight().X ||
+                        window.OuterRectClipped.Location.Y >= window.OuterRectClipped.LowerRight().Y)
+                    {
+                        if (window.AutoFitFramesX > 0 || window.AutoFitFramesY > 0)
+                        {
+                            window.HiddenFramesCannotSkipItems = 1;
+                        }
+                        else
+                        {
+                            window.HiddenFramesCanSkipItems = 1;
+                        }
+                    }
+                }
+                
+                // Hide along with parent or if parent is collapsed
+                if (parentWindow != null && (parentWindow.Collapsed || parentWindow.HiddenFramesCanSkipItems > 0))
+                {
+                    window.HiddenFramesCanSkipItems = 1;
+                }
+                
+                if (parentWindow != null && (parentWindow.Collapsed || parentWindow.HiddenFramesCannotSkipItems > 0))
+                {
+                    window.HiddenFramesCannotSkipItems = 1;
+                }
+            }
+
             // Don't render if style alpha is 0.0 at the time of Begin().
             // This is arbitrary and inconsistent but has been there for a long while (may remove at some point)
             if (style.Alpha <= 0)
@@ -478,8 +644,7 @@ public static partial class ImGui
 
         if (window.Flags.HasFlag(ImGuiWindowFlags.ChildWindow) 
 #if USE_DOCKING
-            &&
-            !window.Flags.HasFlag(ImGuiWindowFlags.DockNodeHost) && !window.DockIsActive
+            && !window.Flags.HasFlag(ImGuiWindowFlags.DockNodeHost) && !window.DockIsActive
 #endif
             )
         {
@@ -490,10 +655,11 @@ public static partial class ImGui
         if (window.DC.CurrentColumns != null) EndColumns();
         
 #if USE_DOCKING
-        if (!window.Flags.HasFlag(ImGuiWindowFlags.DockNodeHost)) PopClipRect();
-#else
-        PopClipRect();
+        if (!window.Flags.HasFlag(ImGuiWindowFlags.DockNodeHost))
 #endif
+        {
+            PopClipRect();
+        }
         
         if (!window.Flags.HasFlag(ImGuiWindowFlags.NavFlattened)) PopFocusScope();
 

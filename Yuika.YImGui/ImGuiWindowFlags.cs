@@ -43,5 +43,7 @@ public enum ImGuiWindowFlags
     Popup        = 1 << 26,
     Modal        = 1 << 27,
     ChildMenu    = 1 << 28,
+#if USE_DOCKING
     DockNodeHost = 1 << 29,
+#endif
 }

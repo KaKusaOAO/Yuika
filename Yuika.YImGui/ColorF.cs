@@ -5,15 +5,17 @@
 using System.Drawing;
 using System.Numerics;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 
 namespace Yuika.YImGui;
 
+[StructLayout(LayoutKind.Sequential)]
 public struct ColorF
 {
-    public float R;
-    public float G;
-    public float B;
-    public float A;
+    public readonly float R;
+    public readonly float G;
+    public readonly float B;
+    public readonly float A;
 
     public static ColorF White { get; } = new ColorF(1, 1, 1);
     public static ColorF Black { get; } = new ColorF(0, 0, 0);
@@ -34,6 +36,14 @@ public struct ColorF
         A = (float) a;
     }
 
+    public ColorF(ColorF other, float alpha)
+    {
+        R = other.R;
+        G = other.G;
+        B = other.B;
+        A = alpha;
+    }
+
     public static implicit operator Vector4(ColorF color) => Unsafe.As<ColorF, Vector4>(ref color);
     public static implicit operator ColorF(Vector4 v) => Unsafe.As<Vector4, ColorF>(ref v);
     
@@ -47,4 +57,9 @@ public struct ColorF
     public static ColorF operator -(ColorF a, ColorF b) => new ColorF(a.R - b.R, a.G - b.G, a.B - b.B, a.A - b.A);
     public static ColorF operator *(ColorF a, ColorF b) => new ColorF(a.R * b.R, a.G * b.G, a.B * b.B, a.A * b.A);
     public static ColorF operator /(ColorF a, ColorF b) => new ColorF(a.R / b.R, a.G / b.G, a.B / b.B, a.A / b.A);
+
+    public ColorF WithRed(float r) => new ColorF(r, G, B, A);
+    public ColorF WithGreen(float g) => new ColorF(R, g, B, A);
+    public ColorF WithBlue(float b) => new ColorF(R, G, b, A);
+    public ColorF WithAlpha(float a) => new ColorF(this, a);
 }

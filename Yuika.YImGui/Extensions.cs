@@ -45,7 +45,7 @@ internal static class Extensions
             throw new ArgumentOutOfRangeException(nameof(size));
         }
 
-        return source is TSource[] {Length: 0} ? ArraySegment<TSource[]>.Empty : ChunkIterator(source, size);
+        return source is TSource[] {Length: 0} ? Array.Empty<TSource[]>() : ChunkIterator(source, size);
     }
     
     private static IEnumerable<TSource[]> ChunkIterator<TSource>(IEnumerable<TSource> source, int size)

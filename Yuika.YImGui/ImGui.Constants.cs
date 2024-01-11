@@ -18,5 +18,7 @@ public static partial class ImGui
 
 #if USE_DOCKING
     internal const uint ViewportDefaultId = /*0x*/11111111;
+    internal const int DockingHostDrawChannelBg = 0;
+    internal const int DockingHostDrawChannelFg = 1;
 #endif
 }

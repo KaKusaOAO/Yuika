@@ -16,7 +16,7 @@ internal class ImGuiNextWindowData
     public ImGuiCond DockCond { get; set; }
     public Vector2 PosVal { get; set; }
     public Vector2 PosPivotVal { get; set; }
-    public SizeF SizeVal { get; set; }
+    public SizeF SizeVal;
     public SizeF ContentSizeVal { get; set; }
     public Vector2 ScrollVal { get; set; }
     public ImGuiChildFlags ChildFlags { get; set; }
@@ -27,8 +27,10 @@ internal class ImGuiNextWindowData
     public object? SizeCallbackUserData { get; set; }
     public float BgAlphaVal { get; set; }
     public uint ViewportId { get; set; }
+#if USE_DOCKING
     public uint DockId { get; set; }
     public ImGuiWindowClass WindowClass { get; set; }
+#endif
     public Vector2 MenuBarOffsetMinVal { get; set; }
 
     public void ClearFlags()

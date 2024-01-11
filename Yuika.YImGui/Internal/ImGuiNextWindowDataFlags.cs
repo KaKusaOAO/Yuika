@@ -17,7 +17,9 @@ internal enum ImGuiNextWindowDataFlags
     HasBgAlpha        = 1 << 6,
     HasScroll         = 1 << 7,
     HasChildFlags     = 1 << 8,
+#if USE_DOCKING
     HasViewport       = 1 << 9,
     HasDock           = 1 << 10,
     HasWindowClass    = 1 << 11,
+#endif
 }

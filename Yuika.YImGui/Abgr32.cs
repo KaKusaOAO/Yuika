@@ -5,9 +5,11 @@
 using System.Drawing;
 using System.Numerics;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 
 namespace Yuika.YImGui;
 
+[StructLayout(LayoutKind.Sequential)]
 public struct Abgr32
 {
     public readonly byte A;

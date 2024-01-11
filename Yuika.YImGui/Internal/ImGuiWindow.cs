@@ -20,8 +20,8 @@ internal class ImGuiWindow : IImGuiWindow
 #endif
     public ImGuiViewportP Viewport { get; set; }
     public Vector2 Position { get; set; }
-    public SizeF Size { get; set; }
-    public SizeF SizeFull { get; set; }
+    public SizeF Size;
+    public SizeF SizeFull;
     public SizeF ContentSize { get; set; }
     public SizeF ContentSizeIdeal { get; set; }
     public SizeF ContentSizeExplicit { get; set; }
@@ -35,9 +35,9 @@ internal class ImGuiWindow : IImGuiWindow
     public uint ChildId { get; set; }
     public Vector2 Scroll { get; set; }
     public Vector2 ScrollMax { get; set; }
-    public Vector2 ScrollTarget { get; set; }
-    public Vector2 ScrollTargetCenterRatio { get; set; }
-    public Vector2 ScrollTargetEdgeSnapDist { get; set; }
+    public Vector2 ScrollTarget;
+    public Vector2 ScrollTargetCenterRatio;
+    public Vector2 ScrollTargetEdgeSnapDist;
     public Vector2 ScrollbarSizes { get; set; }
     public bool ScrollbarX { get; set; }
     public bool ScrollbarY { get; set; }
@@ -147,7 +147,7 @@ internal class ImGuiWindow : IImGuiWindow
         ImGuiContext ctx = Ctx;
         if (ctx.DebugHookIdInfo == id)
         {
-            ImGui.DebugHookIdInfo(id, ImGuiDataType.Pointer, ptr, null);
+            ImGui.DebugHookIdInfo(id, (ImGuiDataType) ImGuiDataTypePrivate.Pointer, ptr);
         }
         
         return id;
