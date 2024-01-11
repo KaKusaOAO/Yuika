@@ -35,5 +35,8 @@ public enum ImGuiStyleVar
     SeparatorTextBorderSize,    // float     SeparatorTextBorderSize
     SeparatorTextAlign,         // ImVec2    SeparatorTextAlign
     SeparatorTextPadding,       // ImVec2    SeparatorTextPadding
+#if USE_DOCKING
+    DockingSeparatorSize,       // float     DockingSeparatorSize
+#endif
     EntryCount
 }

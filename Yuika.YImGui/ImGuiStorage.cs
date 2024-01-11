@@ -1,3 +1,7 @@
+// - Yuika.YImGui
+// Copyright (C) Yui (KaKusaOAO).
+// All rights reserved.
+
 using System.Runtime.CompilerServices;
 
 namespace Yuika.YImGui;
