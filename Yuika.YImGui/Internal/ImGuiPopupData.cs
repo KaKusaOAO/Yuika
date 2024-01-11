@@ -1,4 +1,4 @@
-// - Yuika
+// - Yuika.YImGui
 // Copyright (C) Yui (KaKusaOAO).
 // All rights reserved.
 

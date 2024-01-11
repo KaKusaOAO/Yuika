@@ -1,4 +1,8 @@
-﻿using System.Diagnostics;
+﻿// - Yuika.YImGui
+// Copyright (C) Yui (KaKusaOAO).
+// All rights reserved.
+
+using System.Diagnostics;
 using System.Drawing;
 using System.Numerics;
 using System.Runtime.CompilerServices;
@@ -47,6 +51,8 @@ public static partial class ImGui
     #endregion
 
     #region -- Main
+    
+    // ReSharper disable once InconsistentNaming
     public static ImGuiIO IO => EnsureContext().IO;
 
     public static ImGuiStyle Style => EnsureContext().Style;
@@ -71,7 +77,7 @@ public static partial class ImGui
         // Debug.Assert(ctx.Within);
         
         // Unlock font atlas.
-        ctx.IO.Fonts.Locked = false;
+        ctx.IO.Fonts!.Locked = false;
         
         // Clear input data for next frame.
         ctx.IO.MousePosPrev = ctx.IO.MousePos;
@@ -108,8 +114,8 @@ public static partial class ImGui
     public static unsafe void ShowMetricsWindow(bool* open) => throw new NotImplementedException();
     public static void ShowDebugLogWindow(ref bool open) => throw new NotImplementedException();
     public static unsafe void ShowDebugLogWindow(bool* open) => throw new NotImplementedException();
-    public static void ShowIDStackToolWindow(ref bool open) => throw new NotImplementedException();
-    public static unsafe void ShowIDStackToolWindow(bool* open) => throw new NotImplementedException();
+    public static void ShowIdStackToolWindow(ref bool open) => throw new NotImplementedException();
+    public static unsafe void ShowIdStackToolWindow(bool* open) => throw new NotImplementedException();
     public static void ShowAboutWindow(ref bool open) => throw new NotImplementedException();
     public static unsafe void ShowAboutWindow(bool* open) => throw new NotImplementedException();
     public static void ShowStyleEditor(ref ImGuiStyle style) => throw new NotImplementedException();
@@ -122,9 +128,23 @@ public static partial class ImGui
 
     #region -- Styles
 
-    public static void StyleColorsDark(ImGuiStyle dst) => throw new NotImplementedException();
-    public static void StyleColorsLight(ImGuiStyle dst) => throw new NotImplementedException();
-    public static void StyleColorsClassic(ImGuiStyle dst) => throw new NotImplementedException();
+    public static void StyleColorsDark(ImGuiStyle? dst = null)
+    {
+        ImGuiStyle style = dst ?? Style;
+        style.Colors = ImGuiColors.Dark;
+    }
+    
+    public static void StyleColorsLight(ImGuiStyle? dst = null)
+    {
+        ImGuiStyle style = dst ?? Style;
+        style.Colors = ImGuiColors.Light;
+    }
+    
+    public static void StyleColorsClassic(ImGuiStyle? dst = null)
+    {
+        ImGuiStyle style = dst ?? Style;
+        style.Colors = ImGuiColors.Classic;
+    }
 
     #endregion
 
@@ -922,7 +942,7 @@ public static partial class ImGui
 #endif
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static ImGuiContext EnsureContext()
+    internal static ImGuiContext EnsureContext()
     {
         ImGuiContext? ctx = CurrentContext as ImGuiContext;
         Debug.Assert(ctx != null, "No current context. Did you call ImGui.CreateContext() and ImGui.CurrentContext = ... ?");
@@ -1117,4 +1137,10 @@ public static partial class ImGui
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static PointF AsPoint(this Vector2 v) => new PointF(v.X, v.Y);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static Vector2 AsVector(this PointF p) => new Vector2(p.X, p.Y);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal static Vector2 LowerRight(this RectangleF r) => (r.Location + r.Size).AsVector();
 }

@@ -1,4 +1,8 @@
-﻿namespace Yuika.YImGui;
+﻿// - Yuika.YImGui
+// Copyright (C) Yui (KaKusaOAO).
+// All rights reserved.
+
+namespace Yuika.YImGui;
 
 public enum ImGuiCol
 {
@@ -40,6 +44,10 @@ public enum ImGuiCol
     TabActive,
     TabUnfocused,
     TabUnfocusedActive,
+#if USE_DOCKING
+    DockingPreview,
+    DockingEmptyBg,
+#endif
     PlotLines,
     PlotLinesHovered,
     PlotHistogram,
@@ -55,5 +63,6 @@ public enum ImGuiCol
     NavWindowingHighlight, // Highlight window when using CTRL+TAB
     NavWindowingDimBg,     // Darken/colorize entire screen behind the CTRL+TAB window list, when active
     ModalWindowDimBg,      // Darken/colorize entire screen behind a modal window, when one is active
+    
     EntryCount
 }

@@ -1,6 +1,11 @@
-﻿using System.Diagnostics;
+﻿// - Yuika.YImGui
+// Copyright (C) Yui (KaKusaOAO).
+// All rights reserved.
+
+using System.Diagnostics;
 using System.Drawing;
 using System.Numerics;
+using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
 using System.Text;
 using Yuika.YImGui.Internal;
@@ -47,12 +52,17 @@ public class ImGuiIO
     // Miscellaneous options
     
     public bool MouseDrawCursor { get; set; }
+
+#if NET6_0
     [SupportedOSPlatformGuard("macos")]
     [SupportedOSPlatformGuard("tvos")]
     [SupportedOSPlatformGuard("ios")]
     public bool ConfigMacOSBehaviors { get; set; } = 
         OperatingSystem.IsMacOS() || OperatingSystem.IsTvOS() || OperatingSystem.IsIOS();
-        
+#else
+    public bool ConfigMacOSBehaviors { get; set; } = RuntimeInformation.IsOSPlatform(OSPlatform.OSX);
+#endif
+    
     public bool ConfigInputTrickleEventQueue { get; set; } = true;
     public bool ConfigInputTextCursorBlink { get; set; } = true;
     public bool ConfigInputTextEnterKeepActive { get; set; }

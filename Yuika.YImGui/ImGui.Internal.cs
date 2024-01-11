@@ -1,6 +1,12 @@
+// - Yuika.YImGui
+// Copyright (C) Yui (KaKusaOAO).
+// All rights reserved.
+
 using System.Diagnostics;
 using System.Drawing;
 using System.Numerics;
+using System.Runtime.CompilerServices;
+using JetBrains.Annotations;
 using Yuika.YImGui.Internal;
 
 namespace Yuika.YImGui;
@@ -268,6 +274,23 @@ public static partial class ImGui
     private static void RenderText(Vector2 pos, string text, bool hideTextAfterHash = true)
     {
         throw new NotImplementedException();
+    }
+
+    #endregion
+
+    #region -- Misc maths helpers
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal static bool IsFloatAboveGuaranteedIntegerPrecision(float f) => f is <= -16777216 or >= 16777216;
+
+    #endregion
+
+    #region -- Debug Log
+    
+    [StringFormatMethod("format")]
+    internal static void DebugLog(string format, params object[] args)
+    {
+        Console.WriteLine(format, args);
     }
 
     #endregion

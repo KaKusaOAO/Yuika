@@ -1,4 +1,8 @@
-﻿namespace Yuika.YImGui;
+﻿// - Yuika.YImGui
+// Copyright (C) Yui (KaKusaOAO).
+// All rights reserved.
+
+namespace Yuika.YImGui;
 
 using IdxType = Int16;
 

@@ -1,16 +1,20 @@
-﻿using System.Numerics;
+﻿// - Yuika.YImGui
+// Copyright (C) Yui (KaKusaOAO).
+// All rights reserved.
+
+using System.Numerics;
 
 namespace Yuika.YImGui.Internal;
 
 internal class ImGuiWindowTempData
 {
-    public Vector2 CursorPos { get; set; }
-    public Vector2 CursorPosPrevLine { get; set; }
-    public Vector2 CursorStartPos { get; set; }
-    public Vector2 CursorMaxPos { get; set; }
-    public Vector2 IdealMaxPos { get; set; }
-    public Vector2 CurrLineSize { get; set; }
-    public Vector2 PrevLineSize { get; set; }
+    public Vector2 CursorPos;
+    public Vector2 CursorPosPrevLine;
+    public Vector2 CursorStartPos;
+    public Vector2 CursorMaxPos;
+    public Vector2 IdealMaxPos;
+    public Vector2 CurrLineSize;
+    public Vector2 PrevLineSize;
     public float CurrLineTextBaseOffset { get; set; }
     public float PrevLineTextBaseOffset { get; set; }
     public bool IsSameLine { get; set; }

@@ -7,7 +7,7 @@ public class ImFontConfig
     // public IntPtr FontData { get; set; }
     // public int FontDataSize { get; set; }        
 
-    public byte[] FontData { get; set; } = Array.Empty<byte>();
+    public byte[]? FontData { get; set; } 
     public bool FontDataOwnedByAtlas { get; set; } = true;
     public int FontNo { get; set; }
     public float SizePixels { get; set; }

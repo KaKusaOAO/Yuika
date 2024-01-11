@@ -1,4 +1,8 @@
-﻿using System.Numerics;
+﻿// - Yuika.YImGui
+// Copyright (C) Yui (KaKusaOAO).
+// All rights reserved.
+
+using System.Numerics;
 using Yuika.YImGui.Internal;
 
 namespace Yuika.YImGui;

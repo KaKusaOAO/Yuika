@@ -1,3 +1,7 @@
+// - Yuika.YImGui
+// Copyright (C) Yui (KaKusaOAO).
+// All rights reserved.
+
 using System.Drawing;
 using System.Numerics;
 using Yuika.YImGui.Internal;
