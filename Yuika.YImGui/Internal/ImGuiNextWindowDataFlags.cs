@@ -4,6 +4,7 @@
 
 namespace Yuika.YImGui.Internal;
 
+[Flags]
 internal enum ImGuiNextWindowDataFlags
 {
     None,
@@ -11,7 +12,7 @@ internal enum ImGuiNextWindowDataFlags
     HasPos            = 1 << 0,
     HasSize           = 1 << 1,
     HasContentSize    = 1 << 2,
-    HasCollpased      = 1 << 3,
+    HasCollapsed      = 1 << 3,
     HasSizeConstraint = 1 << 4,
     HasFocus          = 1 << 5,
     HasBgAlpha        = 1 << 6,

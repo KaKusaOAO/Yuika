@@ -413,7 +413,7 @@ public static partial class ImGui
         }
 #endif
 
-        if (ctx.NextWindowData.Flags.HasFlag(ImGuiNextWindowDataFlags.HasCollpased))
+        if (ctx.NextWindowData.Flags.HasFlag(ImGuiNextWindowDataFlags.HasCollapsed))
         {
             SetWindowCollapsed(window, ctx.NextWindowData.CollapsedVal, ctx.NextWindowData.CollapsedCond);
         }
@@ -635,7 +635,7 @@ public static partial class ImGui
         if (ctx.CurrentWindowStack.Count <= 1 && ctx.WithinFrameScopeWithImplicitWindow)
         {
             if (ctx.CurrentWindowStack.Count <= 1)
-                throw new ImGuiException("Calling End() too many times!");
+                throw new ImGuiException($"Calling {nameof(End)}() too many times!");
             
             return;
         }
@@ -649,7 +649,7 @@ public static partial class ImGui
             )
         {
             if (!ctx.WithinEndChild)
-                throw new ImGuiException("Must call EndChild() and not End()!");
+                throw new ImGuiException($"Must call {nameof(EndChild)}() and not {nameof(End)}()!");
         }
 
         if (window.DC.CurrentColumns != null) EndColumns();
@@ -1262,8 +1262,19 @@ public static partial class ImGui
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal static ImGuiContext EnsureContext()
     {
-        ImGuiContext? ctx = CurrentContext as ImGuiContext;
-        Debug.Assert(ctx != null, "No current context. Did you call ImGui.CreateContext() and ImGui.CurrentContext = ... ?");
+        if (CurrentContext == null)
+        {
+            throw new ImGuiException(
+                $"No current context. Did you call {nameof(ImGui)}.{nameof(CreateContext)}()" +
+                $"and {nameof(ImGui)}.{nameof(CurrentContext)} = ... ?");
+        }
+        
+        if (CurrentContext is not ImGuiContext ctx)
+        {
+            throw new ImGuiException(
+                $"Invalid context has been set. Don't implement {nameof(IImGuiContext)} interface.");
+        }
+        
         return ctx;
     }
     

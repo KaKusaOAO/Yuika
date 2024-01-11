@@ -245,15 +245,15 @@ public static partial class ImGui
     #endregion
 
     #region -- NewFrame
-
+    // ...
     #endregion
 
     #region -- Generic context hooks
-
+    // ...
     #endregion
 
     #region -- Viewports
-
+    // ...
     #endregion
 
     #region -- Settings
